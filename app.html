@@ -844,57 +844,20 @@ if('serviceWorker' in navigator){
 
 <script>
 // ══════════════════════════════════════════════════════
-// DATA
+// DATA — starts empty, loaded from Supabase per user
 // ══════════════════════════════════════════════════════
 const todayStr = new Date().toISOString().split('T')[0];
 let selectedDateFilter = null;
 let revenueTarget = 55000;
+let currentUser = null;
+let currentCompany = null;
 
-let jobs = [
-  {id:1,client:'Brendan Fourie',phone:'082 341 7892',email:'brendan.fourie@gmail.com',type:'Geyser Burst — Emergency Repair',addr:'27 Buitenkant Street, Gardens, Cape Town, 8001',suburb:'Gardens, Cape Town',time:'07:30',date:todayStr,callout:350,labour:1200,parts:1150,cost:2700,status:'completed',priority:'emergency',notes:'200L geyser, element and thermostat both failed. Client had no hot water for 2 days. Replaced element, thermostat and pressure valve. Test ran fine.',invoiceStatus:'sent',invNo:'PME-2025-047'},
-  {id:2,client:'Naledi Khumalo',phone:'071 556 3310',email:'naledi.khumalo@webmail.co.za',type:'Blocked Drain — Hydro Jetting',addr:'54 Voortrekker Road, Bellville, Cape Town, 7530',suburb:'Bellville',time:'09:00',date:todayStr,callout:350,labour:550,parts:0,cost:900,status:'completed',priority:'normal',notes:'Kitchen drain blocked solid. Used hydro jetter — cleared grease build-up and food debris from P-trap to main stack. Advised client on using drain guard.',invoiceStatus:'paid',invNo:'PME-2025-046'},
-  {id:3,client:'Craig van der Berg',phone:'083 219 4450',email:'c.vdberg@outlook.com',type:'Burst Pipe — Emergency',addr:'8 Fresnaye Avenue, Sea Point, Cape Town, 8005',suburb:'Sea Point',time:'10:30',date:todayStr,callout:550,labour:1100,parts:420,cost:2070,status:'inprogress',priority:'emergency',notes:'15mm copper pipe burst under kitchen sink — probable freeze damage. Water turned off at mains by client. Need to replace 600mm section and two compression fittings. Check condition of surrounding pipes while there.',invoiceStatus:'draft',invNo:'PME-2025-048'},
-  {id:4,client:'Priya Naidoo',phone:'074 883 2201',email:'priya.naidoo@fnb.co.za',type:'Geyser Thermostat Replacement',addr:'142 Jan Smuts Avenue, Parkwood, Sandton, 2193',suburb:'Parkwood, Sandton',time:'12:00',date:todayStr,callout:350,labour:650,parts:380,cost:1380,status:'upcoming',priority:'normal',notes:'Geyser running constantly, thermostat stuck open. Needs 55-65°C thermostat. Check element resistance before committing — might need full element swap too.',invoiceStatus:'draft',invNo:'PME-2025-049'},
-  {id:5,client:'Johan Steenkamp',phone:'060 774 9983',email:'johansteenkamp@telkom.net',type:'New Geyser Installation (200L)',addr:'33 Kloof Street, Tamboerskloof, Cape Town, 8001',suburb:'Tamboerskloof',time:'14:00',date:todayStr,callout:0,labour:2200,parts:2100,cost:4300,status:'upcoming',priority:'normal',notes:'Old 150L Kwikot to be removed and disposed. Installing new Ariston 200L. Check geyser blanket and drip tray condition. COC required — remember to issue compliance certificate.',invoiceStatus:'draft',invNo:'PME-2025-050'},
-  {id:6,client:'Ayanda Mokoena',phone:'079 334 5512',email:'ayanda.m@standardbank.co.za',type:'Bathroom Renovation Plumbing',addr:'91 Barry Hertzog Avenue, Emmarentia, Johannesburg, 2195',suburb:'Emmarentia, Johannesburg',time:'16:30',date:todayStr,callout:0,labour:3800,parts:2100,cost:5900,status:'upcoming',priority:'normal',notes:'Relocate shower drain 600mm south. New basin waste and overflow. Replace 1" supply pipes with 22mm copper throughout. Full bathroom re-pipe job. Quote was accepted. 50% deposit already received — R2,950.',invoiceStatus:'draft',invNo:'PME-2025-051'},
-];
-
-const invoices = [
-  {id:201,client:'Werner Pietersen',phone:'083 662 1145',email:'wpietersen@webmail.co.za',job:'New Geyser Installation (150L)',addr:'19 Durban Road, Mowbray, Cape Town',amount:3900,daysOverdue:11,status:'overdue',invNo:'PME-2025-038',invoiceDate:'26 May 2025',dueDate:'2 Jun 2025'},
-  {id:202,client:'Lindiwe Zulu',phone:'071 990 4432',email:'lindiwe.zulu@hotmail.com',job:'Blocked Drain — Hydro Jetting',addr:'77 Adderley Street, Cape Town CBD, 8001',amount:900,daysOverdue:5,status:'overdue',invNo:'PME-2025-042',invoiceDate:'1 Jun 2025',dueDate:'1 Jun 2025'},
-  {id:203,client:'Stefan Holm',phone:'082 115 7730',email:'s.holm@hollard.co.za',job:'Burst Pipe — Emergency Repair',addr:'3 Stellenberg Road, Parow, Cape Town',amount:1850,daysOverdue:14,status:'overdue',invNo:'PME-2025-034',invoiceDate:'23 May 2025',dueDate:'30 May 2025'},
-  {id:204,client:'Megan October',phone:'073 441 8891',email:'megoctoberct@gmail.com',job:'Toilet Cistern Repair + Seat Replacement',addr:'55 Beach Road, Strand, 7140',amount:820,daysOverdue:3,status:'sent',invNo:'PME-2025-044',invoiceDate:'3 Jun 2025',dueDate:'3 Jun 2025'},
-  {id:205,client:'Rudi Louw',phone:'083 887 4456',email:'rudi.louw@gmail.com',job:'Pressure Reducing Valve Replacement',addr:'12 Du Toit Street, Paarl, 7646',amount:980,daysOverdue:1,status:'sent',invNo:'PME-2025-045',invoiceDate:'5 Jun 2025',dueDate:'5 Jun 2025'},
-  {id:206,client:'Naledi Khumalo',phone:'071 556 3310',email:'naledi.khumalo@webmail.co.za',job:'Blocked Drain — Hydro Jetting',addr:'54 Voortrekker Road, Bellville',amount:900,daysOverdue:0,status:'paid',paidDate:'6 Jun 2025',invNo:'PME-2025-046'},
-  {id:207,client:'Brendan Fourie',phone:'082 341 7892',email:'brendan.fourie@gmail.com',job:'Geyser Burst Emergency Repair',addr:'27 Buitenkant Street, Gardens',amount:2700,daysOverdue:0,status:'paid',paidDate:'5 Jun 2025',invNo:'PME-2025-047'},
-  {id:208,client:'Thabo Sithole',phone:'061 223 9987',email:'t.sithole@gmail.com',job:'Solar Geyser Conversion',addr:'28 Wierda Road, Sandton, 2196',amount:8400,daysOverdue:0,status:'paid',paidDate:'1 Jun 2025',invNo:'PME-2025-039'},
-  {id:209,client:'Anita Smit',phone:'082 775 3311',email:'anita.smit@mweb.co.za',job:'Bathroom Renovation Plumbing',addr:'6 Vineyard Road, Claremont, 7708',amount:7200,daysOverdue:0,status:'paid',paidDate:'29 May 2025',invNo:'PME-2025-036'},
-  {id:210,client:'Kobus van Wyk',phone:'083 440 2278',email:'kobus.vanwyk@absa.co.za',job:'New Geyser Installation (200L) + COC',addr:'41 Bosman Street, Bellville, 7530',amount:4650,daysOverdue:0,status:'paid',paidDate:'28 May 2025',invNo:'PME-2025-035'},
-];
-
-const recentIncome=[
-  {client:'Naledi Khumalo',initials:'NK',color:'#1d4ed8',job:'Blocked Drain — Hydro Jetting',amount:900,date:'Today'},
-  {client:'Brendan Fourie',initials:'BF',color:'#7c3aed',job:'Geyser Burst Emergency Repair',amount:2700,date:'5 Jun'},
-  {client:'Thabo Sithole',initials:'TS',color:'#065f46',job:'Solar Geyser Conversion',amount:8400,date:'1 Jun'},
-  {client:'Anita Smit',initials:'AS',color:'#9d174d',job:'Bathroom Renovation Plumbing',amount:7200,date:'29 May'},
-  {client:'Kobus van Wyk',initials:'KV',color:'#92400e',job:'Geyser Install (200L) + COC',amount:4650,date:'28 May'},
-  {client:'Sandra Olivier',initials:'SO',color:'#134e4a',job:'Toilet Cistern + Tap Replacement',amount:1340,date:'27 May'},
-];
-
-const jobTypeBreakdown=[
-  {type:'Geyser Work',count:8,revenue:28400,color:'var(--blue)'},
-  {type:'Blocked Drains',count:6,revenue:5400,color:'var(--teal)'},
-  {type:'Pipe Repairs',count:4,revenue:7400,color:'var(--teal)'},
-  {type:'Bathroom Renos',count:2,revenue:15600,color:'var(--amber)'},
-];
-
-const notifications=[
-  {id:1,text:'⚠️ Stefan Holm — PME-2025-034 is 14 days overdue · R1,850',time:'Just now',read:false},
-  {id:2,text:'🔔 Werner Pietersen — R3,900 overdue 11 days · Send a chaser',time:'2 hrs ago',read:false},
-  {id:3,text:'✅ Naledi Khumalo paid invoice PME-2025-046 · R900 received',time:'Today 09:15',read:false},
-  {id:4,text:'📅 Johan Steenkamp job at 14:00 — Kloof Street, Tamboerskloof',time:'Today 08:00',read:true},
-  {id:5,text:'💰 84% of June target reached · R46,190 collected',time:'Yesterday',read:true},
-];
+// All empty — filled from database after login
+let jobs = [];
+let invoices = [];
+let recentIncome = [];
+let jobTypeBreakdown = [];
+let notifications = [];
 
 const forecast=[
   {day:'Today',icon:'⛅',temp:'19°C',desc:'Partly cloudy',note:'Good for outdoor work'},
@@ -1416,63 +1379,161 @@ async function loadCompanyData(){
   const session = getSession();
   if(!session) return;
 
-  // Get company record
-  const companies = await supaFetch('/rest/v1/companies?email=eq.'+encodeURIComponent(session.user.email)+'&limit=1');
-  if(companies && companies.length > 0){
-    const company = companies[0];
-    localStorage.setItem('pme_company_id', company.id);
+  currentUser = session.user;
 
-    // Update header with real company name
-    document.querySelector('.hdr-titles h1').innerHTML = company.name+' <span style="color:var(--copper-light)">PME</span>';
+  // Update loading message
+  document.querySelector('.load-sub').textContent = 'Loading your business data...';
 
-    // Check trial status
-    const trialEnds = new Date(company.trial_ends_at);
-    const now = new Date();
-    const daysLeft = Math.ceil((trialEnds - now) / (1000*60*60*24));
-    if(!company.is_subscribed && daysLeft <= 3 && daysLeft > 0){
-      showToast('⚠️ Trial ends in '+daysLeft+' day'+(daysLeft>1?'s':'')+' — subscribe to continue');
-    } else if(!company.is_subscribed && daysLeft <= 0){
-      showToast('🔒 Trial expired — please subscribe to continue');
-    }
+  try {
+    // Get company record for this user
+    const companies = await supaFetch('/rest/v1/companies?email=eq.'+encodeURIComponent(session.user.email)+'&limit=1');
 
-    // Load real jobs from database
-    const dbJobs = await supaFetch('/rest/v1/jobs?company_id=eq.'+company.id+'&order=job_date.asc,job_time.asc');
-    if(dbJobs && dbJobs.length > 0){
-      jobs = dbJobs.map(j=>({
-        id: j.id, client: j.client, phone: j.phone||'—', email: j.email||'',
-        type: j.job_type, addr: j.address, suburb: j.suburb||j.address,
-        time: j.job_time||'09:00', date: j.job_date||todayStr,
-        callout: j.callout||0, labour: j.labour||0, parts: j.parts||0, cost: j.cost||0,
-        status: j.status||'upcoming', priority: j.priority||'normal',
-        notes: j.notes||'', invoiceStatus: j.invoice_status||'draft', invNo: j.invoice_no||'PME-001'
-      }));
-      renderJobs();
-    }
+    if(companies && companies.length > 0){
+      currentCompany = companies[0];
+      localStorage.setItem('pme_company_id', currentCompany.id);
 
-    // Load real invoices
-    const dbInvoices = await supaFetch('/rest/v1/invoices?company_id=eq.'+company.id+'&order=created_at.desc');
-    if(dbInvoices && dbInvoices.length > 0){
+      // ── Update ALL identity in the app ──
+      const companyName = currentCompany.name;
+      const ownerName = currentCompany.owner_name || session.user.email;
+      const ownerInitials = ownerName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+      // Header
+      document.querySelector('.hdr-titles h1').innerHTML = companyName;
+      document.querySelector('.hdr-sub').textContent = ownerName + ' · ' + new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      document.querySelector('.avatar').textContent = ownerInitials;
+
+      // Settings profile card
+      const profileCard = document.querySelector('#view-settings .card');
+      if(profileCard){
+        profileCard.querySelector('div > div:first-child').textContent = ownerName;
+      }
+
+      // Profile panel
+      document.querySelector('.profile-name').textContent = ownerName;
+      document.querySelector('.profile-role').textContent = 'Plumber · ' + companyName;
+      document.querySelector('.profile-av-lg').textContent = ownerInitials;
+
+      // Sign out email
+      const signOutItem = document.querySelector('.profile-menu-item:last-child .profile-menu-sub');
+      if(signOutItem) signOutItem.textContent = session.user.email;
+
+      // Trial status check
+      const trialEnds = new Date(currentCompany.trial_ends_at);
+      const daysLeft = Math.ceil((trialEnds - new Date()) / (1000*60*60*24));
+      if(!currentCompany.is_subscribed){
+        if(daysLeft > 0 && daysLeft <= 3){
+          pushNotif(`⏳ Trial ends in ${daysLeft} day${daysLeft>1?'s':''} — subscribe to keep access`);
+        } else if(daysLeft <= 0){
+          pushNotif('🔒 Your trial has expired — please subscribe to continue');
+          showToast('🔒 Trial expired — tap Settings to subscribe');
+        } else {
+          pushNotif(`🎉 Welcome to Plumbing Made Easy! ${daysLeft} days left in your free trial.`);
+        }
+      }
+
+      // ── Load real jobs ──
+      const dbJobs = await supaFetch('/rest/v1/jobs?company_id=eq.'+currentCompany.id+'&order=job_date.asc,job_time.asc');
+      jobs = [];
+      if(dbJobs && dbJobs.length > 0){
+        jobs = dbJobs.map(j=>({
+          id: j.id,
+          client: j.client,
+          phone: j.phone||'—',
+          email: j.email||'',
+          type: j.job_type||'General Job',
+          addr: j.address||'',
+          suburb: j.suburb||j.address||'',
+          time: j.job_time||'09:00',
+          date: j.job_date||todayStr,
+          callout: Number(j.callout)||0,
+          labour: Number(j.labour)||0,
+          parts: Number(j.parts)||0,
+          cost: Number(j.cost)||0,
+          status: j.status||'upcoming',
+          priority: j.priority||'normal',
+          notes: j.notes||'',
+          invoiceStatus: j.invoice_status||'draft',
+          invNo: j.invoice_no||'PME-001'
+        }));
+      }
+
+      // ── Load real invoices ──
+      const dbInvoices = await supaFetch('/rest/v1/invoices?company_id=eq.'+currentCompany.id+'&order=created_at.desc');
       invoices.length = 0;
-      dbInvoices.forEach(inv => invoices.push({
-        id: inv.id, client: inv.client, phone: inv.phone||'—', email: inv.email||'',
-        job: inv.job_description, addr: inv.address, amount: inv.amount,
-        daysOverdue: inv.days_overdue||0, status: inv.status||'draft',
-        invNo: inv.invoice_no, invoiceDate: inv.invoice_date,
-        dueDate: inv.due_date, paidDate: inv.paid_date
-      }));
+      if(dbInvoices && dbInvoices.length > 0){
+        dbInvoices.forEach(inv => invoices.push({
+          id: inv.id,
+          client: inv.client,
+          phone: inv.phone||'—',
+          email: inv.email||'',
+          job: inv.job_description||'',
+          addr: inv.address||'',
+          amount: Number(inv.amount)||0,
+          daysOverdue: inv.days_overdue||0,
+          status: inv.status||'draft',
+          invNo: inv.invoice_no||'',
+          invoiceDate: inv.invoice_date||'',
+          dueDate: inv.due_date||'',
+          paidDate: inv.paid_date||''
+        }));
+      }
+
+      // ── Build income list from paid invoices ──
+      const colors = ['#1d4ed8','#7c3aed','#065f46','#9d174d','#92400e','#134e4a','#1e3a5f','#3d1a00'];
+      recentIncome = invoices
+        .filter(i=>i.status==='paid')
+        .slice(0,6)
+        .map((i,idx)=>({
+          client: i.client,
+          initials: i.client.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),
+          color: colors[idx % colors.length],
+          job: i.job,
+          amount: i.amount,
+          date: i.paidDate||'Recent'
+        }));
+
+      // ── Build job type breakdown dynamically ──
+      const typeMap = {};
+      jobs.forEach(j=>{
+        const cat = j.type.includes('Geyser')?'Geyser Work':
+                    j.type.includes('Drain')?'Blocked Drains':
+                    j.type.includes('Pipe')||j.type.includes('Burst')?'Pipe Repairs':
+                    j.type.includes('Bathroom')||j.type.includes('Renovation')?'Bathroom Renos':'Other';
+        if(!typeMap[cat]) typeMap[cat]={type:cat,count:0,revenue:0};
+        typeMap[cat].count++;
+        typeMap[cat].revenue += j.cost;
+      });
+      const typeColors = {'Geyser Work':'var(--copper)','Blocked Drains':'var(--blue)','Pipe Repairs':'var(--green)','Bathroom Renos':'var(--amber)','Other':'var(--text3)'};
+      jobTypeBreakdown = Object.values(typeMap).map(t=>({...t,color:typeColors[t.type]||'var(--text3)'}));
+
+      // ── Check for overdue invoices and push notifications ──
+      const overdueInvs = invoices.filter(i=>i.status==='overdue'&&i.daysOverdue>0);
+      overdueInvs.slice(0,2).forEach(inv=>{
+        pushNotif(`⚠️ ${inv.client} — ${inv.invNo} is ${inv.daysOverdue} days overdue · ${fmt(inv.amount)}`);
+      });
+
+    } else {
+      // Brand new user — no company record yet, show welcome
+      pushNotif('🎉 Welcome! Add your first job using the ➕ tab below.');
     }
+
+  } catch(e) {
+    console.error('Failed to load company data:', e);
+    pushNotif('⚠️ Could not load your data. Check your connection.');
   }
 
-  // Update avatar with user initials
-  const name = session.user.name || session.user.email;
-  const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  document.querySelector('.avatar').textContent = initials;
+  // Re-render everything with real data
+  renderJobs();
+  renderDashboard();
+  renderNotifs();
 }
 
 // ── SAVE JOB TO SUPABASE ──
 async function saveJobToDb(job){
   const companyId = localStorage.getItem('pme_company_id');
-  if(!companyId) return;
+  if(!companyId){ showToast('⚠️ Not connected to database — job saved locally only'); return; }
+
+  // Save job
   await supaFetch('/rest/v1/jobs','POST',{
     company_id: companyId,
     client: job.client, phone: job.phone, email: job.email,
@@ -1481,6 +1542,20 @@ async function saveJobToDb(job){
     callout: job.callout, labour: job.labour, parts: job.parts, cost: job.cost,
     status: job.status, priority: job.priority, notes: job.notes,
     invoice_status: job.invoiceStatus, invoice_no: job.invNo
+  });
+
+  // Auto-create draft invoice
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + 7);
+  await supaFetch('/rest/v1/invoices','POST',{
+    company_id: companyId,
+    client: job.client, phone: job.phone, email: job.email,
+    job_description: job.type, address: job.addr,
+    amount: job.cost, status: 'draft',
+    invoice_no: job.invNo,
+    invoice_date: job.date,
+    due_date: dueDate.toISOString().split('T')[0],
+    days_overdue: 0
   });
 }
 
