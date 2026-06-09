@@ -2,1383 +2,670 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#141210"/>
-
-<!-- PWA / iOS -->
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Plumbing Made Easy"/>
-<meta name="mobile-web-app-capable" content="yes"/>
-
-<!-- SEO / Open Graph -->
-<meta name="description" content="Plumbing Made Easy — Job scheduling, invoicing and payment tracking for South African plumbers."/>
-<meta name="author" content="Danie Visser"/>
-<meta property="og:title" content="Plumbing Made Easy"/>
-<meta property="og:description" content="Job scheduling, invoicing and payment tracking for South African plumbers."/>
-<meta property="og:type" content="website"/>
-<meta name="robots" content="noindex, nofollow"/>
-
-<title>Plumbing Made Easy</title>
+<meta name="description" content="Plumbing Made Easy — Job scheduling, invoicing and payment tracking built for South African plumbers. R499/month. 14-day free trial."/>
+<title>Plumbing Made Easy — Built for SA Plumbers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-
-<!-- PWA Manifest inline -->
-<script>
-const manifestData = {
-  name: "Plumbing Made Easy",
-  short_name: "PME",
-  description: "Job scheduling, invoicing and payment tracking",
-  start_url: "/",
-  display: "standalone",
-  background_color: "#141210",
-  theme_color: "#141210",
-  orientation: "portrait",
-  icons: [
-    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%23141210'/><text y='130' x='96' font-size='110' text-anchor='middle'>🔧</text></svg>", sizes: "192x192", type: "image/svg+xml" },
-    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23141210'/><text y='360' x='256' font-size='290' text-anchor='middle'>🔧</text></svg>", sizes: "512x512", type: "image/svg+xml" }
-  ]
-};
-const blob = new Blob([JSON.stringify(manifestData)], {type:'application/json'});
-const manifestURL = URL.createObjectURL(blob);
-document.addEventListener('DOMContentLoaded', () => {
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = manifestURL;
-  document.head.appendChild(link);
-});
-</script>
-
 <style>
-/* ── CSS RESET & ROOT ── */
 :root{
-  /* Charcoal base — warm dark, not cold navy */
   --bg:#141210;--bg2:#1C1916;--bg3:#221F1B;
   --surface:#272320;--surface2:#302C28;--surface3:#3A3530;
-
-  /* Borders — warm, subtle */
-  --border:rgba(210,160,100,0.1);--border2:rgba(210,160,100,0.18);
-
-  /* Text — warm whites */
+  --border:rgba(210,160,100,0.12);--border2:rgba(210,160,100,0.2);
   --text:#F5F0EA;--text2:#C4B49A;--text3:#7A6E62;
-
-  /* Copper — the signature accent (pipe material) */
   --copper:#C87533;--copper2:#A85C1A;--copper-light:#E09558;
-  --copper-glow:rgba(200,117,51,0.25);
-
-  /* Semantic colours — muted, professional */
-  --green:#5DBE7A;--green2:#2E7D4F;
-  --amber:#D4A43A;--amber2:#A87C20;
-  --red:#C96060;--orange:#C87840;
-  --blue:#5B8DB8;--bluelight:#7AADD4;
-
-  /* Radius */
-  --r:8px;--r2:12px;--r3:16px;--r4:22px;
+  --copper-glow:rgba(200,117,51,0.2);
+  --green:#5DBE7A;--red:#C96060;--amber:#D4A43A;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
-html,body{height:100%;background:var(--bg);overflow:hidden}
-body{font-family:'Inter',sans-serif;color:var(--text);display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;box-shadow:0 0 60px rgba(0,0,0,0.8)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
 a{color:inherit;text-decoration:none}
-button{font-family:'Inter',sans-serif}
-input,select,textarea{font-family:'Inter',sans-serif}
 
-/* ── LOADING SCREEN ── */
-#loadScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .4s ease}
-#loadScreen.hidden{opacity:0;pointer-events:none}
-.load-logo{width:72px;height:72px;background:linear-gradient(145deg,var(--copper),var(--copper2));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 8px 32px var(--copper-glow);animation:pulse 1.8s ease-in-out infinite}
-@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 8px 32px var(--copper-glow)}50%{transform:scale(1.05);box-shadow:0 12px 40px rgba(200,117,51,0.4)}}
-.load-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
-.load-title span{color:var(--copper-light)}
-.load-sub{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:0.04em;text-transform:uppercase}
-.load-bar-wrap{width:140px;height:2px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-top:6px}
-.load-bar{height:100%;background:linear-gradient(90deg,var(--copper2),var(--copper-light));border-radius:99px;animation:loadAnim 1.2s ease forwards}
-@keyframes loadAnim{from{width:0}to{width:100%}}
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(20,18,16,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:32px;height:32px;background:linear-gradient(145deg,var(--copper),var(--copper2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 3px 10px var(--copper-glow)}
+.nav-name{font-size:15px;font-weight:800;letter-spacing:-0.3px}
+.nav-name span{color:var(--copper-light)}
+.nav-links{display:flex;align-items:center;gap:24px}
+.nav-links a{font-size:13px;font-weight:500;color:var(--text3);transition:color .15s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{background:linear-gradient(145deg,var(--copper),var(--copper2));color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 3px 12px var(--copper-glow);transition:all .15s}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--copper-glow)}
 
-/* ── HEADER ── */
-.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:50}
-.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--copper),transparent);opacity:0.6}
-.hdr-brand{display:flex;align-items:center;gap:10px}
-.hdr-logo{width:36px;height:36px;background:linear-gradient(145deg,var(--copper),var(--copper2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 10px var(--copper-glow)}
-.hdr-titles h1{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-0.4px;line-height:1}
-.hdr-titles h1 span{color:var(--copper-light)}
-.hdr-sub{font-size:10px;color:var(--text3);margin-top:2px;font-weight:500;letter-spacing:0.03em}
-.hdr-right{display:flex;align-items:center;gap:8px}
-.hdr-notif{position:relative;cursor:pointer;padding:4px}
-.notif-dot{position:absolute;top:2px;right:2px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid var(--bg2);display:none}
-.notif-dot.visible{display:block}
-.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(145deg,var(--copper2),var(--copper));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;letter-spacing:0.5px;border:1.5px solid rgba(200,117,51,0.4);cursor:pointer;transition:all .15s}
-.avatar:active{transform:scale(0.93)}
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(200,117,51,0.08) 0%,transparent 70%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(200,117,51,0.08);border:1px solid rgba(200,117,51,0.2);border-radius:99px;padding:6px 14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--copper-light);margin-bottom:28px}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--copper);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero h1{font-size:clamp(36px,8vw,72px);font-weight:900;letter-spacing:-2px;line-height:1.05;margin-bottom:22px;max-width:800px}
+.hero h1 .accent{color:var(--copper-light)}
+.hero h1 .line2{display:block;color:var(--text2);font-weight:300}
+.hero-sub{font-size:clamp(15px,2.5vw,19px);color:var(--text3);line-height:1.65;max-width:520px;margin-bottom:40px;font-weight:400}
+.hero-sub strong{color:var(--text2);font-weight:600}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:56px}
+.btn-hero{padding:16px 32px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .2s;letter-spacing:-.1px}
+.btn-hero-primary{background:linear-gradient(145deg,var(--copper),var(--copper2));color:#fff;box-shadow:0 6px 24px var(--copper-glow)}
+.btn-hero-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(200,117,51,0.35)}
+.btn-hero-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border2)}
+.btn-hero-ghost:hover{border-color:var(--copper-light);color:var(--text)}
+.hero-trust{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);font-weight:500}
+.trust-item span{font-size:14px}
 
-/* ── VIEWS ── */
-.views{flex:1;overflow:hidden;position:relative}
-.view{position:absolute;inset:0;overflow-y:auto;padding:14px 14px 96px;display:none;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
-.view.active{display:block;animation:fadeIn .2s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.view::-webkit-scrollbar{display:none}
+/* ── PHONE MOCKUP ── */
+.phone-wrap{position:relative;margin:0 auto 20px;width:min(280px,70vw)}
+.phone-frame{background:var(--bg2);border:2px solid var(--border2);border-radius:36px;padding:10px;box-shadow:0 40px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(200,117,51,0.1);position:relative;overflow:hidden}
+.phone-notch{width:80px;height:6px;background:var(--surface2);border-radius:99px;margin:0 auto 10px}
+.phone-screen{background:var(--surface);border-radius:24px;overflow:hidden;aspect-ratio:9/16}
+.phone-hdr{background:var(--bg2);padding:10px 12px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.ph-logo{width:24px;height:24px;background:linear-gradient(145deg,var(--copper),var(--copper2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.ph-title{font-size:10px;font-weight:800;color:var(--text)}
+.ph-title span{color:var(--copper-light)}
+.phone-body{padding:10px}
+.ph-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:7px;position:relative;overflow:hidden}
+.ph-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;border-radius:2px 0 0 2px}
+.ph-card.c1::before{background:var(--copper)}
+.ph-card.c2::before{background:var(--amber)}
+.ph-card.c3::before{background:var(--green)}
+.ph-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.ph-client{font-size:9px;font-weight:700;color:var(--text)}
+.ph-badge{font-size:7px;font-weight:700;padding:2px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.05em}
+.ph-badge.up{background:rgba(200,117,51,0.15);color:var(--copper-light)}
+.ph-badge.ip{background:rgba(212,164,58,0.15);color:var(--amber)}
+.ph-badge.dn{background:rgba(93,190,122,0.12);color:var(--green)}
+.ph-job{font-size:7px;color:var(--text3);margin-bottom:3px}
+.ph-bottom{display:flex;justify-content:space-between;align-items:center}
+.ph-cost{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--copper-light)}
+.ph-time{font-family:'DM Mono',monospace;font-size:7px;color:var(--text3);background:var(--surface3);padding:2px 5px;border-radius:3px}
+.phone-nav{background:var(--bg2);display:flex;padding:6px 0;border-top:1px solid var(--border)}
+.ph-nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:5px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.ph-nb.active{color:var(--copper-light)}
+.ph-nb-icon{font-size:12px;line-height:1}
+.phone-glow{position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);width:200px;height:100px;background:radial-gradient(ellipse,rgba(200,117,51,0.15),transparent);pointer-events:none}
 
-/* ── BOTTOM NAV ── */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(20,18,16,0.98);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:100;padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
-.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;border:none;background:none;color:var(--text3);transition:all .2s;position:relative;font-family:'Inter',sans-serif}
-.nbtn.active{color:var(--copper-light)}
-.nbtn .ni{font-size:21px;line-height:1;transition:transform .2s}
-.nbtn.active .ni{transform:translateY(-1px)}
-.nbtn .nl{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
-.nbtn::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:linear-gradient(90deg,var(--copper2),var(--copper-light));border-radius:0 0 3px 3px;transition:width .2s}
-.nbtn.active::before{width:28px}
+/* ── FEATURES ── */
+.section{padding:80px 24px;max-width:1100px;margin:0 auto}
+.section-eyebrow{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--copper-light);margin-bottom:14px}
+.section-title{font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:16px}
+.section-sub{font-size:16px;color:var(--text3);line-height:1.65;max-width:500px;margin-bottom:48px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;transition:all .2s;cursor:default}
+.feat-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.3)}
+.feat-icon{font-size:28px;margin-bottom:16px;display:block}
+.feat-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:-.2px}
+.feat-desc{font-size:13px;color:var(--text3);line-height:1.65}
+.feat-tag{display:inline-block;margin-top:12px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--copper-light);background:rgba(200,117,51,0.08);border:1px solid rgba(200,117,51,0.15);padding:3px 8px;border-radius:4px}
 
-/* ── SECTION HEADERS ── */
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.sec-title{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3)}
-.sec-action{font-size:11px;font-weight:600;color:var(--copper-light);cursor:pointer}
+/* ── STATS BAND ── */
+.stats-band{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:48px 24px}
+.stats-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px;text-align:center}
+.stat-val{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;letter-spacing:-2px;color:var(--copper-light);line-height:1}
+.stat-label{font-size:12px;color:var(--text3);margin-top:8px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
 
-/* ── WEEK STRIP ── */
-.week-wrap{margin-bottom:14px}
-.week-toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.week-toggle-pill{background:var(--surface);border:1px solid var(--border2);border-radius:99px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--copper-light);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s}
-.week-toggle-pill:active{transform:scale(0.96)}
-.wstrip{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px}
-.wstrip::-webkit-scrollbar{display:none}
-.wday{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 10px;border-radius:var(--r2);cursor:pointer;min-width:46px;flex-shrink:0;border:1px solid transparent;transition:all .15s}
-.wday:not(.today){background:var(--surface);border-color:var(--border)}
-.wday.today{background:linear-gradient(145deg,var(--copper),var(--copper2));box-shadow:0 4px 16px var(--copper-glow)}
-.wday.selected:not(.today){border-color:var(--copper-light);background:var(--surface2)}
-.wday .dn{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
-.wday.today .dn{color:rgba(255,240,220,0.8)}
-.wday .dd{font-size:18px;font-weight:800;color:var(--text2);font-family:'DM Mono',monospace}
-.wday.today .dd{color:#fff}
-.wday .djobs{display:flex;gap:2px;min-height:6px;justify-content:center}
-.wday .djob-dot{width:5px;height:5px;border-radius:50%;background:var(--copper-light)}
-.wday.today .djob-dot{background:rgba(255,240,220,0.9)}
+/* ── HOW IT WORKS ── */
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0;position:relative}
+.how-step{padding:28px;position:relative}
+.how-step:not(:last-child)::after{content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:20px;color:var(--border2)}
+.step-num{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--copper);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.step-num::before{content:'';display:inline-block;width:20px;height:1px;background:var(--copper);opacity:0.5}
+.step-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:-.2px}
+.step-desc{font-size:13px;color:var(--text3);line-height:1.6}
 
-/* ── JOB CARDS ── */
-.jcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r3);padding:16px;margin-bottom:9px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
-.jcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
-.jcard.upcoming::before{background:var(--copper)}
-.jcard.inprogress::before{background:var(--amber)}
-.jcard.completed::before{background:var(--green2);opacity:0.8}
-.jcard.completed{opacity:0.65}
-.jcard:active{transform:scale(0.985)}
-.jcard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:8px}
-.jcard-time{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text3);background:var(--surface2);padding:3px 8px;border-radius:5px;white-space:nowrap;letter-spacing:0.02em}
-.jcard-client{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;letter-spacing:-0.3px}
-.jcard-type{font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500}
-.jcard-addr{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px;margin-bottom:10px;line-height:1.4}
-.jcard-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.jcard-cost{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--copper-light)}
-.jcard-actions{display:flex;gap:6px}
+/* ── PRICING ── */
+.pricing-wrap{max-width:480px;margin:0 auto}
+.price-card{background:var(--surface);border:1.5px solid var(--border2);border-radius:24px;padding:36px;position:relative;overflow:hidden}
+.price-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--copper2),var(--copper-light))}
+.price-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(200,117,51,0.1);border:1px solid rgba(200,117,51,0.2);border-radius:99px;padding:5px 12px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--copper-light);margin-bottom:24px}
+.price-name{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.price-amount{display:flex;align-items:flex-end;gap:4px;margin-bottom:6px}
+.price-currency{font-size:22px;font-weight:700;color:var(--text2);margin-bottom:8px}
+.price-number{font-family:'DM Mono',monospace;font-size:64px;font-weight:500;letter-spacing:-3px;color:var(--text);line-height:1}
+.price-period{font-size:14px;color:var(--text3);margin-bottom:4px;font-weight:500}
+.price-trial{font-size:12px;color:var(--green);margin-bottom:28px;font-weight:600}
+.price-divider{height:1px;background:var(--border);margin:24px 0}
+.price-features{list-style:none;margin-bottom:32px}
+.price-features li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text2);padding:7px 0;border-bottom:1px solid var(--border);line-height:1.5}
+.price-features li:last-child{border-bottom:none}
+.price-features li::before{content:'✓';color:var(--green);font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px}
+.price-cta{width:100%;padding:16px;background:linear-gradient(145deg,var(--copper),var(--copper2));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 6px 20px var(--copper-glow);transition:all .2s;margin-bottom:14px}
+.price-cta:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(200,117,51,0.35)}
+.price-guarantee{text-align:center;font-size:12px;color:var(--text3)}
 
-/* ── BADGES ── */
-.badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;white-space:nowrap}
-.b-upcoming{background:rgba(200,117,51,0.1);color:var(--copper-light);border:1px solid rgba(200,117,51,0.2)}
-.b-inprogress{background:rgba(212,164,58,0.12);color:var(--amber);border:1px solid rgba(212,164,58,0.22)}
-.b-completed{background:rgba(93,190,122,0.1);color:var(--green);border:1px solid rgba(93,190,122,0.2)}
-.b-overdue{background:rgba(201,96,96,0.1);color:var(--red);border:1px solid rgba(201,96,96,0.2)}
-.b-paid{background:rgba(93,190,122,0.1);color:var(--green);border:1px solid rgba(93,190,122,0.2)}
-.b-draft{background:rgba(122,110,98,0.12);color:var(--text3);border:1px solid var(--border)}
-.b-sent{background:rgba(91,141,184,0.1);color:var(--bluelight);border:1px solid rgba(91,141,184,0.2)}
-.b-urgent{background:rgba(200,120,64,0.12);color:var(--orange);border:1px solid rgba(200,120,64,0.22)}
+/* ── TESTIMONIAL ── */
+.testimonial{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:560px;margin:0 auto}
+.test-quote{font-size:18px;font-weight:500;color:var(--text);line-height:1.65;margin-bottom:20px;font-style:italic}
+.test-quote::before{content:'"';color:var(--copper);font-size:40px;line-height:0;vertical-align:-12px;margin-right:4px;font-style:normal}
+.test-author{display:flex;align-items:center;gap:12px}
+.test-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(145deg,var(--copper),var(--copper2));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff}
+.test-name{font-size:14px;font-weight:700;color:var(--text)}
+.test-role{font-size:11px;color:var(--text3)}
 
-/* ── MINI BUTTON ── */
-.mbtn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--text2);display:inline-flex;align-items:center;gap:4px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;letter-spacing:0.01em}
-.mbtn:active{transform:scale(0.95)}
-.mbtn.danger{color:var(--red);border-color:rgba(201,96,96,0.2);background:rgba(201,96,96,0.06)}
-.mbtn.success{color:var(--green);border-color:rgba(93,190,122,0.2);background:rgba(93,190,122,0.06)}
-.mbtn.whatsapp{background:#1B6B5A;border-color:#0D5244;color:#fff}
-.mbtn.amber{color:var(--amber);border-color:rgba(212,164,58,0.2);background:rgba(212,164,58,0.06)}
+/* ── FAQ ── */
+.faq-list{max-width:640px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 0;cursor:pointer}
+.faq-q{display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:600;color:var(--text)}
+.faq-icon{font-size:18px;color:var(--text3);transition:transform .2s;flex-shrink:0}
+.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--copper-light)}
+.faq-a{font-size:13px;color:var(--text3);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s}
+.faq-item.open .faq-a{max-height:200px;padding-top:12px}
 
-/* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;border:none;border-radius:var(--r2);cursor:pointer;transition:all .15s;letter-spacing:.01em;padding:13px 20px;user-select:none}
-.btn-primary{background:linear-gradient(145deg,var(--copper),var(--copper2));color:#fff;box-shadow:0 4px 16px var(--copper-glow)}
-.btn-primary:active{transform:scale(0.97);box-shadow:none}
-.btn-success{background:linear-gradient(145deg,#2E7D4F,#245C3C);color:#fff;box-shadow:0 4px 12px rgba(46,125,79,0.3)}
-.btn-amber{background:linear-gradient(145deg,#9A7020,#7A5518);color:#fff;box-shadow:0 4px 12px rgba(154,112,32,0.3)}
-.btn-danger{background:rgba(201,96,96,0.1);color:var(--red);border:1px solid rgba(201,96,96,0.22)}
-.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
-.btn-ghost:active{transform:scale(0.97)}
-.btn-full{width:100%}
-.btn-sm{font-size:12px;padding:9px 16px}
+/* ── FOOTER ── */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24px;text-align:center}
+.footer-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px}
+.footer-tagline{font-size:13px;color:var(--text3);margin-bottom:20px}
+.footer-links{display:flex;justify-content:center;gap:20px;margin-bottom:20px}
+.footer-links a{font-size:12px;color:var(--text3);transition:color .15s}
+.footer-links a:hover{color:var(--copper-light)}
+.footer-copy{font-size:11px;color:var(--text3);opacity:0.6}
 
-/* ── STATS ── */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r3);padding:16px;position:relative;overflow:hidden}
-.scard.full{grid-column:1/-1}
-.scard-icon{font-size:22px;margin-bottom:8px;opacity:0.85}
-.scard-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
-.scard-val{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;line-height:1;letter-spacing:-0.5px}
-.scard-val.big{font-size:32px}
-.scard-val.green{color:var(--green)}
-.scard-val.amber{color:var(--amber)}
-.scard-val.blue{color:var(--copper-light)}
-.scard-sub{font-size:11px;color:var(--text3);margin-top:5px}
-.prog-wrap{margin-top:14px}
-.prog-labels{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px}
-.prog-labels span:first-child{color:var(--text3)}
-.prog-labels span:last-child{font-weight:700;color:var(--copper-light)}
-.prog-track{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
-.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--copper2),var(--copper),var(--copper-light));transition:width 1s cubic-bezier(.4,0,.2,1)}
-.prog-milestones{display:flex;justify-content:space-between;margin-top:5px}
-.prog-ms{font-size:9px;color:var(--text3)}
+/* ── AUTH SCREENS ── */
+.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:20px}
+.auth-overlay.open{display:flex;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+.auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:36px 32px;width:100%;max-width:420px;position:relative}
+.auth-close{position:absolute;top:16px;right:16px;background:var(--surface);border:none;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);font-size:16px;transition:all .15s}
+.auth-close:hover{color:var(--text);background:var(--surface2)}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.auth-logo-icon{width:36px;height:36px;background:linear-gradient(145deg,var(--copper),var(--copper2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.auth-logo-text{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.auth-logo-text span{color:var(--copper-light)}
+.auth-title{font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--text);margin-bottom:6px}
+.auth-sub{font-size:13px;color:var(--text3);margin-bottom:28px;line-height:1.5}
+.auth-sub a{color:var(--copper-light);cursor:pointer;font-weight:600}
+.auth-group{margin-bottom:16px}
+.auth-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;display:block}
+.auth-input{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;-webkit-appearance:none}
+.auth-input:focus{border-color:var(--copper)}
+.auth-input::placeholder{color:var(--text3)}
+.auth-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.auth-btn{width:100%;padding:14px;background:linear-gradient(145deg,var(--copper),var(--copper2));color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 16px var(--copper-glow);transition:all .2s;margin-top:8px}
+.auth-btn:hover{transform:translateY(-1px)}
+.auth-btn:active{transform:scale(0.98)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-divider span{font-size:11px;color:var(--text3);font-weight:600}
+.auth-terms{font-size:11px;color:var(--text3);text-align:center;margin-top:16px;line-height:1.6}
+.auth-terms a{color:var(--copper-light)}
+.auth-trial-badge{background:rgba(93,190,122,0.08);border:1px solid rgba(93,190,122,0.2);border-radius:10px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.auth-trial-badge .atb-icon{font-size:18px}
+.auth-trial-badge .atb-text{font-size:12px;color:var(--green);font-weight:600;line-height:1.4}
+.plan-summary{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:20px}
+.plan-summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.plan-summary-row:not(:last-child){margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.plan-summary-label{color:var(--text3)}
+.plan-summary-val{font-weight:700;color:var(--text)}
+.plan-summary-val.green{color:var(--green)}
+.plan-summary-val.copper{color:var(--copper-light);font-family:'DM Mono',monospace}
 
-/* ── INCOME LIST ── */
-.income-item{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--border)}
-.income-item:last-child{border-bottom:none}
-.inc-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.3px}
-.inc-info{flex:1;min-width:0}
-.inc-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
-.inc-job{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.inc-right{text-align:right;flex-shrink:0}
-.inc-amt{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--green)}
-.inc-date{font-size:10px;color:var(--text3);margin-top:2px}
-
-/* ── TABS ── */
-.tab-bar{display:flex;background:var(--surface);border-radius:var(--r2);padding:3px;gap:3px;margin-bottom:14px}
-.tab-btn{flex:1;padding:9px 10px;font-size:11px;font-weight:600;border:none;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;color:var(--text3);background:transparent;letter-spacing:.02em}
-.tab-btn.active{background:var(--surface3);color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,0.4)}
-
-/* ── INVOICE CARDS ── */
-.invcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r3);padding:16px;margin-bottom:10px}
-.invcard.overdue{border-color:rgba(201,96,96,0.2);background:linear-gradient(135deg,var(--surface),rgba(40,18,18,0.6))}
-.invcard.urgent{border-color:rgba(200,120,64,0.22)}
-.inv-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:8px}
-.inv-client{font-size:14px;font-weight:700;color:var(--text);letter-spacing:-0.2px}
-.inv-job{font-size:11px;color:var(--text3);margin-top:2px}
-.inv-addr{font-size:11px;color:var(--text3);margin-top:1px}
-.inv-amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--red);white-space:nowrap}
-.inv-amt.paid{color:var(--green)}
-.inv-meta{display:flex;align-items:center;gap:6px;margin:8px 0 10px;flex-wrap:wrap}
-.overdue-tag{font-size:10px;font-weight:700;color:var(--red);background:rgba(201,96,96,0.08);border:1px solid rgba(201,96,96,0.18);padding:3px 7px;border-radius:4px}
-.inv-btns{display:flex;gap:7px;flex-wrap:wrap}
-.chaser-box{display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-top:12px}
-.chaser-box.open{display:block;animation:fadeIn .2s ease}
-.chaser-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
-.chaser-msg{font-size:11px;color:var(--text2);line-height:1.7;background:var(--surface);border-radius:8px;padding:12px;margin-bottom:10px;font-family:'DM Mono',monospace;white-space:pre-wrap;border:1px solid var(--border)}
-.chaser-actions{display:flex;gap:8px;flex-wrap:wrap}
-
-/* ── FORM ── */
-.fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r3);padding:18px}
-.fgroup{margin-bottom:14px}
-.flabel{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;display:block}
-.finput{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
-.finput:focus{border-color:var(--copper);background:var(--bg3)}
-.finput::placeholder{color:var(--text3)}
-.finput option{background:var(--bg2);color:var(--text)}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.finput-prefix-wrap{position:relative}
-.finput-prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace}
-.finput.with-prefix{padding-left:26px}
-.form-divider{height:1px;background:var(--border);margin:16px 0;position:relative}
-.form-divider-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--surface);padding:0 10px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
-
-/* ── MODAL ── */
-.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:300;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.modal-ov.open{display:flex}
-.modal{background:var(--bg2);border-radius:24px 24px 0 0;width:100%;max-width:430px;padding:0 18px 44px;max-height:90vh;overflow-y:auto;animation:slideUp .28s cubic-bezier(.34,1.56,.64,1)}
-@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-handle{width:36px;height:3px;background:var(--surface3);border-radius:99px;margin:14px auto 18px;cursor:pointer}
-.modal-title{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.4px;margin-bottom:2px}
-.modal-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
-.mrow{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-bottom:1px solid var(--border)}
-.mrow:last-of-type{border-bottom:none}
-.mrow-icon{font-size:19px;width:30px;text-align:center;flex-shrink:0;margin-top:1px}
-.mrow-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
-.mrow-val{font-size:13px;color:var(--text);font-weight:600;line-height:1.5}
-.mrow-val.money{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--copper-light)}
-.divider{height:1px;background:var(--border);margin:14px 0}
-.complete-prompt{background:rgba(46,125,79,0.08);border:1px solid rgba(93,190,122,0.18);border-radius:var(--r2);padding:16px;margin-top:14px}
-
-/* ── TOAST ── */
-.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-16px);background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-size:12px;font-weight:600;padding:10px 20px;border-radius:99px;z-index:600;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.5);letter-spacing:0.01em}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ── EMPTY ── */
-.empty{text-align:center;padding:40px 20px}
-.empty-icon{font-size:44px;margin-bottom:14px;opacity:0.5}
-.empty-text{font-size:13px;color:var(--text3);line-height:1.65}
-
-/* ── CARD ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r3);padding:16px;margin-bottom:12px}
-
-/* ── URGENCY BANNER ── */
-.urgency-banner{background:rgba(200,120,64,0.08);border:1px solid rgba(200,120,64,0.2);border-radius:var(--r2);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.urgency-banner .ub-text{font-size:12px;font-weight:600;color:var(--orange);line-height:1.45}
-.urgency-banner .ub-icon{font-size:18px;flex-shrink:0}
-
-/* ── WEATHER ── */
-.weather-strip{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .15s}
-.ws-left{display:flex;align-items:center;gap:8px}
-.ws-temp{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--text)}
-.ws-desc{font-size:11px;color:var(--text3)}
-.ws-right{font-size:11px;color:var(--text3);text-align:right}
-.weather-day{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
-.weather-day:last-child{border-bottom:none}
-.wd-left{display:flex;align-items:center;gap:12px}
-.wd-icon{font-size:20px;width:28px;text-align:center}
-.wd-name{font-size:13px;font-weight:600;color:var(--text)}
-.wd-desc{font-size:11px;color:var(--text3)}
-.wd-temp{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text2)}
-.wd-note{font-size:10px;color:var(--text3);margin-top:2px;text-align:right}
-
-/* ── NOTIFICATIONS PANEL ── */
-.notif-panel{position:fixed;top:62px;right:calc(50% - 215px);width:285px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r3);z-index:200;box-shadow:0 20px 50px rgba(0,0,0,0.7);display:none;overflow:hidden}
-.notif-panel.open{display:block;animation:dropIn .2s cubic-bezier(.34,1.56,.64,1)}
-@keyframes dropIn{from{opacity:0;transform:translateY(-10px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-.notif-header{padding:12px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.notif-header-title{font-size:12px;font-weight:700;color:var(--text);letter-spacing:-.1px}
-.notif-clear{font-size:9px;font-weight:700;color:var(--copper-light);cursor:pointer;letter-spacing:.08em;text-transform:uppercase}
-.notif-item{display:flex;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
-.notif-item:last-child{border-bottom:none}
-.notif-item:hover{background:var(--surface)}
-.notif-item.unread{background:rgba(200,117,51,0.04)}
-.notif-dot-i{width:5px;height:5px;border-radius:50%;background:var(--copper);flex-shrink:0;margin-top:6px}
-.notif-dot-i.read{background:transparent}
-.notif-text{font-size:11px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:2px}
-.notif-time{font-size:10px;color:var(--text3)}
-
-/* ── PROFILE PANEL ── */
-.profile-panel{position:fixed;top:62px;right:calc(50% - 215px);width:256px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r3);z-index:200;box-shadow:0 20px 50px rgba(0,0,0,0.7);display:none;overflow:hidden}
-.profile-panel.open{display:block;animation:dropIn .2s cubic-bezier(.34,1.56,.64,1)}
-.profile-top{padding:16px;background:var(--surface);border-bottom:1px solid var(--border)}
-.profile-av-lg{width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,var(--copper),var(--copper2));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;margin-bottom:10px;border:1.5px solid rgba(200,117,51,0.4)}
-.profile-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
-.profile-role{font-size:11px;color:var(--text3)}
-.profile-menu-item{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--border)}
-.profile-menu-item:last-child{border-bottom:none}
-.profile-menu-item:hover{background:var(--surface)}
-.profile-menu-icon{font-size:15px;width:22px;text-align:center}
-.profile-menu-label{font-size:12px;font-weight:600;color:var(--text)}
-.profile-menu-sub{font-size:10px;color:var(--text3);margin-top:1px}
-
-/* ── DATE FILTER BANNER ── */
-.date-filter-banner{background:rgba(200,117,51,0.06);border:1px solid var(--border2);border-radius:var(--r2);padding:9px 14px;margin-bottom:12px;display:none;align-items:center;justify-content:space-between}
-.date-filter-banner.visible{display:flex;animation:fadeIn .2s ease}
-.dfb-text{font-size:12px;font-weight:600;color:var(--copper-light)}
-.dfb-clear{font-size:11px;font-weight:700;color:var(--red);cursor:pointer}
-
-/* ── SETTINGS ── */
-.settings-section{margin-bottom:18px}
-.settings-section-title{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;padding-left:2px}
-.settings-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:13px 16px;margin-bottom:7px;cursor:pointer;transition:all .12s}
-.settings-row:active{transform:scale(0.99)}
-.settings-row-left{display:flex;align-items:center;gap:12px}
-.settings-row-icon{font-size:17px;width:26px;text-align:center}
-.settings-row-label{font-size:13px;font-weight:600;color:var(--text)}
-.settings-row-sub{font-size:11px;color:var(--text3);margin-top:2px}
-.settings-row-right{font-size:12px;color:var(--text3)}
-.toggle{width:42px;height:23px;background:var(--surface3);border-radius:99px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
-.toggle.on{background:var(--copper2)}
-.toggle::after{content:'';position:absolute;width:17px;height:17px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,0.4)}
-.toggle.on::after{transform:translateX(19px)}
-
-/* ── EXPORT MODAL ── */
-.export-modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:400;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
-.export-modal.open{display:flex}
-.export-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r4);padding:26px 22px;width:90%;max-width:360px;animation:fadeIn .25s ease;text-align:center}
-.export-box h3{font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px}
-.export-box p{font-size:12px;color:var(--text3);margin-bottom:18px;line-height:1.5}
-.export-options{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.export-option{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:13px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s;text-align:left}
-.export-option:active{transform:scale(0.98);border-color:var(--copper)}
-.export-option-icon{font-size:20px}
-.export-option-label{font-size:13px;font-weight:600;color:var(--text)}
-.export-option-sub{font-size:11px;color:var(--text3);margin-top:2px}
-
-/* ── PANEL OVERLAY ── */
-.panel-ov{position:fixed;inset:0;z-index:199;display:none}
-.panel-ov.open{display:block}
-
-/* ── WEATHER MODAL ── */
-.weather-modal{background:var(--bg2);border-radius:22px 22px 0 0;width:100%;max-width:430px;padding:0 18px 44px;max-height:85vh;overflow-y:auto;animation:slideUp .28s cubic-bezier(.34,1.56,.64,1)}
-
-/* ── INSTALL BANNER ── */
-.install-banner{background:rgba(200,117,51,0.07);border:1px solid rgba(200,117,51,0.18);border-radius:var(--r2);padding:11px 14px;margin-bottom:14px;display:none;align-items:center;gap:10px}
-.install-banner.visible{display:flex;animation:fadeIn .3s ease}
-.ib-icon{font-size:20px;flex-shrink:0}
-.ib-text{flex:1;font-size:12px;font-weight:500;color:var(--text2);line-height:1.4}
-.ib-btn{background:var(--copper2);color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap}
-.ib-close{font-size:15px;color:var(--text3);cursor:pointer;padding:4px;flex-shrink:0}
+/* ── MOBILE NAV TOGGLE ── */
+.nav-mobile-toggle{display:none;background:none;border:none;font-size:20px;color:var(--text);cursor:pointer}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .nav-mobile-toggle{display:block}
+  .hero h1{letter-spacing:-1.5px}
+  .how-step:not(:last-child)::after{display:none}
+  .how-grid{gap:12px}
+}
 </style>
 </head>
 <body>
 
-<!-- LOADING SCREEN -->
-<div id="loadScreen">
-  <div class="load-logo">🔧</div>
-  <div class="load-title">Plumbing <span>Made Easy</span></div>
-  <div class="load-sub">Loading your jobs for today...</div>
-  <div class="load-bar-wrap"><div class="load-bar"></div></div>
-</div>
-
-<!-- HEADER -->
-<div class="hdr">
-  <div class="hdr-brand">
-    <div class="hdr-logo">🔧</div>
-    <div class="hdr-titles">
-      <h1>Plumbing <span>Made Easy</span></h1>
-      <div class="hdr-sub" id="hdrDate">Loading...</div>
-    </div>
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">🔧</div>
+    <div class="nav-name">Plumbing <span>Made Easy</span></div>
   </div>
-  <div class="hdr-right">
-    <div class="hdr-notif" onclick="toggleNotifPanel(event)" aria-label="Notifications">
-      <span style="font-size:22px">🔔</span>
-      <div class="notif-dot visible" id="notifDot"></div>
-    </div>
-    <div class="avatar" onclick="toggleProfilePanel(event)" role="button" aria-label="Profile">DV</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="#" onclick="openAuth('login');return false">Log in</a>
   </div>
-</div>
-
-<!-- PANEL OVERLAY -->
-<div class="panel-ov" id="panelOv" onclick="closePanels()"></div>
-
-<!-- NOTIFICATIONS PANEL -->
-<div class="notif-panel" id="notifPanel" role="dialog" aria-label="Notifications">
-  <div class="notif-header">
-    <div class="notif-header-title">Notifications</div>
-    <div class="notif-clear" onclick="clearNotifs()">Mark all read</div>
-  </div>
-  <div id="notifList"></div>
-</div>
-
-<!-- PROFILE PANEL -->
-<div class="profile-panel" id="profilePanel" role="dialog" aria-label="Profile menu">
-  <div class="profile-top">
-    <div class="profile-av-lg">DV</div>
-    <div class="profile-name">Danie Visser</div>
-    <div class="profile-role">Master Plumber · Cape Town</div>
-  </div>
-  <div class="profile-menu-item" onclick="closePanels();setView('settings',document.querySelectorAll('.nbtn')[4])">
-    <div class="profile-menu-icon">⚙️</div>
-    <div><div class="profile-menu-label">Settings</div><div class="profile-menu-sub">App preferences &amp; account</div></div>
-  </div>
-  <div class="profile-menu-item" onclick="closePanels();exportModal()">
-    <div class="profile-menu-icon">📊</div>
-    <div><div class="profile-menu-label">Export Report</div><div class="profile-menu-sub">PDF, CSV or WhatsApp summary</div></div>
-  </div>
-  <div class="profile-menu-item" onclick="closePanels();showToast('🚨 Emergency mode activated — clients notified')">
-    <div class="profile-menu-icon">🆘</div>
-    <div><div class="profile-menu-label">Emergency Callout Mode</div><div class="profile-menu-sub">Alert clients of delay</div></div>
-  </div>
-  <div class="profile-menu-item" onclick="closePanels();showToast('🔒 Signed out')">
-    <div class="profile-menu-icon">🚪</div>
-    <div><div class="profile-menu-label">Sign Out</div><div class="profile-menu-sub">danie@plumbingmadeeasy.co.za</div></div>
-  </div>
-</div>
-
-<!-- VIEWS CONTAINER -->
-<div class="views">
-
-  <!-- ══ SCHEDULE ══ -->
-  <div class="view active" id="view-schedule">
-
-    <!-- PWA Install Banner -->
-    <div class="install-banner" id="installBanner">
-      <div class="ib-icon">📲</div>
-      <div class="ib-text">Add to your home screen for the best experience</div>
-      <button class="ib-btn" id="installBtn" onclick="doInstall()">Install</button>
-      <div class="ib-close" onclick="dismissInstall()">✕</div>
-    </div>
-
-    <div class="weather-strip" onclick="openWeatherModal()">
-      <div class="ws-left">
-        <span style="font-size:22px" id="wxIcon">⛅</span>
-        <div>
-          <div class="ws-temp" id="wxTemp">19°C</div>
-          <div class="ws-desc" id="wxDesc">Partly cloudy · Cape Town</div>
-        </div>
-      </div>
-      <div class="ws-right">
-        <div style="font-weight:600;color:var(--text2)">Good day for outdoor work</div>
-        <div style="color:var(--text3)">Wind: 14 km/h · Tap for forecast ↗</div>
-      </div>
-    </div>
-
-    <div class="urgency-banner" id="urgencyBanner" style="display:none">
-      <div class="ub-icon">⚡</div>
-      <div class="ub-text" id="urgencyText">Emergency callout in progress.</div>
-    </div>
-
-    <div class="week-wrap">
-      <div class="week-toggle-row">
-        <div class="sec-title">Today's Jobs <span id="jobCountBadge" style="background:var(--surface2);border-radius:99px;padding:2px 8px;font-size:10px;color:var(--copper-light);margin-left:6px">0</span></div>
-        <div class="week-toggle-pill" onclick="toggleWeek(this)">📅 Week View</div>
-      </div>
-      <div id="weekStrip" style="display:none"></div>
-    </div>
-
-    <div class="date-filter-banner" id="dateFilterBanner">
-      <div class="dfb-text" id="dateFilterText">📅 Showing: —</div>
-      <div class="dfb-clear" onclick="clearDateFilter()">✕ Show Today</div>
-    </div>
-
-    <div id="jobsList"></div>
-  </div>
-
-  <!-- ══ MONEY ══ -->
-  <div class="view" id="view-money">
-    <div class="sec-hdr">
-      <div class="sec-title" id="moneyMonthLabel">— Summary</div>
-      <div class="sec-action" onclick="exportModal()">⬇ Export</div>
-    </div>
-    <div class="stats-grid">
-      <div class="scard full earn">
-        <div class="scard-icon">💰</div>
-        <div class="scard-label">Total Earned This Month</div>
-        <div class="scard-val big green" id="s-earned">R0</div>
-        <div class="scard-sub" id="s-earnedsub">across 0 paid jobs</div>
-        <div class="prog-wrap">
-          <div class="prog-labels">
-            <span>Target: R55,000 / month</span>
-            <span id="s-pct">0%</span>
-          </div>
-          <div class="prog-track"><div class="prog-fill" id="s-progfill" style="width:0%"></div></div>
-          <div class="prog-milestones">
-            <span class="prog-ms">R0</span><span class="prog-ms">R27.5k</span><span class="prog-ms">R55k</span>
-          </div>
-        </div>
-      </div>
-      <div class="scard pend">
-        <div class="scard-icon">⏳</div>
-        <div class="scard-label">Still Owed</div>
-        <div class="scard-val amber" id="s-pending">R0</div>
-        <div class="scard-sub" id="s-pendingsub">0 invoices</div>
-      </div>
-      <div class="scard jobs">
-        <div class="scard-icon">✅</div>
-        <div class="scard-label">Jobs Done</div>
-        <div class="scard-val blue" id="s-weekjobs">0</div>
-        <div class="scard-sub">Completed</div>
-      </div>
-    </div>
-    <div class="sec-hdr"><div class="sec-title">Recent Payments</div></div>
-    <div class="card" style="padding:4px 16px" id="incomeList"></div>
-    <div class="sec-hdr" style="margin-top:16px"><div class="sec-title">Top Job Types</div></div>
-    <div class="card" id="jobTypes"></div>
-  </div>
-
-  <!-- ══ INVOICES ══ -->
-  <div class="view" id="view-invoices">
-    <div class="sec-hdr">
-      <div class="sec-title">Invoice Tracker</div>
-      <div class="sec-action" id="invSummary"></div>
-    </div>
-    <div class="tab-bar">
-      <button class="tab-btn active" onclick="setInvTab('unpaid',this)">🔴 Unpaid / Overdue</button>
-      <button class="tab-btn" onclick="setInvTab('paid',this)">✅ Paid</button>
-    </div>
-    <div id="invList"></div>
-  </div>
-
-  <!-- ══ NEW JOB ══ -->
-  <div class="view" id="view-new">
-    <div class="sec-hdr"><div class="sec-title">Schedule New Job</div></div>
-    <div class="fcard">
-      <div class="fgroup">
-        <label class="flabel">👤 Client Name *</label>
-        <input class="finput" id="f-name" type="text" placeholder="e.g. Thabo Nkosi" autocomplete="name" autocorrect="off"/>
-      </div>
-      <div class="frow">
-        <div class="fgroup">
-          <label class="flabel">📞 Phone *</label>
-          <input class="finput" id="f-phone" type="tel" placeholder="082 000 0000" autocomplete="tel"/>
-        </div>
-        <div class="fgroup">
-          <label class="flabel">📧 Email</label>
-          <input class="finput" id="f-email" type="email" placeholder="client@email.com" autocomplete="email"/>
-        </div>
-      </div>
-      <div class="fgroup">
-        <label class="flabel">🔧 Job Type *</label>
-        <select class="finput" id="f-jobtype">
-          <option value="">Select job type...</option>
-          <optgroup label="Geysers">
-            <option>Geyser Burst — Emergency Repair</option>
-            <option>Geyser Element Replacement</option>
-            <option>Geyser Thermostat Replacement</option>
-            <option>New Geyser Installation (150L)</option>
-            <option>New Geyser Installation (200L)</option>
-            <option>Solar Geyser Conversion</option>
-          </optgroup>
-          <optgroup label="Drains & Pipes">
-            <option>Blocked Drain — Hydro Jetting</option>
-            <option>Blocked Drain — Snake/Rodding</option>
-            <option>Burst Pipe — Emergency</option>
-            <option>Pipe Leak Repair</option>
-            <option>Sewer Line Inspection</option>
-            <option>Storm Drain Clearing</option>
-          </optgroup>
-          <optgroup label="Toilets & Bathrooms">
-            <option>Toilet Cistern Repair</option>
-            <option>Toilet Seat Replacement</option>
-            <option>Basin Tap Replacement</option>
-            <option>Shower Head Replacement</option>
-            <option>Bathroom Renovation Plumbing</option>
-          </optgroup>
-          <optgroup label="General">
-            <option>Pressure Reducing Valve</option>
-            <option>Water Meter Repair / Replace</option>
-            <option>Isolation Valve Replacement</option>
-            <option>Outside Tap Installation</option>
-            <option>Washing Machine Connection</option>
-            <option>Full Plumbing Inspection</option>
-          </optgroup>
-        </select>
-      </div>
-      <div class="fgroup">
-        <label class="flabel">📍 Street Address *</label>
-        <input class="finput" id="f-addr" type="text" placeholder="e.g. 47 Main Road, Green Point, Cape Town" autocomplete="street-address"/>
-      </div>
-      <div class="frow">
-        <div class="fgroup">
-          <label class="flabel">📅 Date *</label>
-          <input class="finput" id="f-date" type="date"/>
-        </div>
-        <div class="fgroup">
-          <label class="flabel">🕐 Time *</label>
-          <input class="finput" id="f-time" type="time"/>
-        </div>
-      </div>
-      <div class="form-divider"><span class="form-divider-label">Pricing</span></div>
-      <div class="frow">
-        <div class="fgroup">
-          <label class="flabel">💰 Call-Out (R)</label>
-          <div class="finput-prefix-wrap">
-            <span class="finput-prefix">R</span>
-            <input class="finput with-prefix" id="f-callout" type="number" placeholder="350" min="0" inputmode="decimal"/>
-          </div>
-        </div>
-        <div class="fgroup">
-          <label class="flabel">🔩 Labour (R)</label>
-          <div class="finput-prefix-wrap">
-            <span class="finput-prefix">R</span>
-            <input class="finput with-prefix" id="f-labour" type="number" placeholder="850" min="0" inputmode="decimal"/>
-          </div>
-        </div>
-      </div>
-      <div class="frow">
-        <div class="fgroup">
-          <label class="flabel">🛒 Parts (R)</label>
-          <div class="finput-prefix-wrap">
-            <span class="finput-prefix">R</span>
-            <input class="finput with-prefix" id="f-parts" type="number" placeholder="0" min="0" inputmode="decimal"/>
-          </div>
-        </div>
-        <div class="fgroup">
-          <label class="flabel">📦 Total (R)</label>
-          <div class="finput-prefix-wrap">
-            <span class="finput-prefix">R</span>
-            <input class="finput with-prefix" id="f-total" type="number" placeholder="Auto-calc" min="0" inputmode="decimal"/>
-          </div>
-        </div>
-      </div>
-      <div class="fgroup">
-        <label class="flabel">📝 Job Notes</label>
-        <input class="finput" id="f-notes" type="text" placeholder="e.g. Bring 20mm copper fittings, check element too."/>
-      </div>
-      <div class="fgroup">
-        <label class="flabel">⚡ Priority</label>
-        <select class="finput" id="f-priority">
-          <option value="normal">Normal</option>
-          <option value="urgent">Urgent (same day)</option>
-          <option value="emergency">Emergency (within 2hrs)</option>
-        </select>
-      </div>
-      <button class="btn btn-primary btn-full" onclick="submitJob()" style="margin-top:6px;padding:15px">
-        ✅ Schedule Job &amp; Create Invoice
-      </button>
-    </div>
-  </div>
-
-  <!-- ══ SETTINGS ══ -->
-  <div class="view" id="view-settings">
-    <div class="sec-hdr"><div class="sec-title">Settings &amp; Profile</div></div>
-    <div class="card" style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-      <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#8B4513,var(--copper));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0;border:2px solid rgba(200,117,51,0.3)">DV</div>
-      <div>
-        <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:2px">Danie Visser</div>
-        <div style="font-size:11px;color:var(--text3)">Master Plumber · Lic. SA-PLM-2019-0441</div>
-        <div style="font-size:11px;color:var(--text3)">082 555 1234 · danie@plumbingmadeeasy.co.za</div>
-      </div>
-    </div>
-    <div class="settings-section">
-      <div class="settings-section-title">Business</div>
-      <div class="settings-row" onclick="showToast('✏️ Edit business details')">
-        <div class="settings-row-left"><div class="settings-row-icon">🏢</div><div><div class="settings-row-label">Business Details</div><div class="settings-row-sub">Name, address, VAT number</div></div></div>
-        <div class="settings-row-right">›</div>
-      </div>
-      <div class="settings-row" onclick="showToast('🏦 Edit banking details')">
-        <div class="settings-row-left"><div class="settings-row-icon">🏦</div><div><div class="settings-row-label">Banking Details</div><div class="settings-row-sub">FNB · 62834910274</div></div></div>
-        <div class="settings-row-right">›</div>
-      </div>
-      <div class="settings-row" onclick="changeTarget()">
-        <div class="settings-row-left"><div class="settings-row-icon">🎯</div><div><div class="settings-row-label">Monthly Revenue Target</div><div class="settings-row-sub" id="targetLabel">Currently: R55,000</div></div></div>
-        <div class="settings-row-right"><span style="font-size:11px;color:var(--copper-light);font-weight:700">Edit</span></div>
-      </div>
-    </div>
-    <div class="settings-section">
-      <div class="settings-section-title">Invoices &amp; Payments</div>
-      <div class="settings-row" onclick="showToast('📄 Invoice prefix: PME-2025-XXX')">
-        <div class="settings-row-left"><div class="settings-row-icon">📄</div><div><div class="settings-row-label">Invoice Prefix</div><div class="settings-row-sub">PME-2025-XXX</div></div></div>
-        <div class="settings-row-right">›</div>
-      </div>
-      <div class="settings-row" onclick="showToast('📅 Payment terms: 7 days')">
-        <div class="settings-row-left"><div class="settings-row-icon">📅</div><div><div class="settings-row-label">Payment Terms</div><div class="settings-row-sub">7 days after invoice date</div></div></div>
-        <div class="settings-row-right">›</div>
-      </div>
-      <div class="settings-row">
-        <div class="settings-row-left"><div class="settings-row-icon">🔔</div><div><div class="settings-row-label">Overdue Alerts</div><div class="settings-row-sub">Remind when 3+ days overdue</div></div></div>
-        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-      </div>
-    </div>
-    <div class="settings-section">
-      <div class="settings-section-title">Notifications</div>
-      <div class="settings-row">
-        <div class="settings-row-left"><div class="settings-row-icon">💬</div><div><div class="settings-row-label">WhatsApp Confirmations</div><div class="settings-row-sub">Send booking confirmations via WA</div></div></div>
-        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-      </div>
-      <div class="settings-row">
-        <div class="settings-row-left"><div class="settings-row-icon">📱</div><div><div class="settings-row-label">Push Notifications</div><div class="settings-row-sub">New job alerts and reminders</div></div></div>
-        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-      </div>
-    </div>
-    <div class="settings-section">
-      <div class="settings-section-title">App</div>
-      <div class="settings-row" onclick="showToast('📖 Opening help docs...')">
-        <div class="settings-row-left"><div class="settings-row-icon">❓</div><div><div class="settings-row-label">Help &amp; FAQ</div></div></div>
-        <div class="settings-row-right">›</div>
-      </div>
-      <div class="settings-row" onclick="showToast('⭐ Thank you for the rating!')">
-        <div class="settings-row-left"><div class="settings-row-icon">⭐</div><div><div class="settings-row-label">Rate the App</div></div></div>
-        <div class="settings-row-right">›</div>
-      </div>
-      <div class="settings-row" onclick="showToast('🔒 Signed out')">
-        <div class="settings-row-left"><div class="settings-row-icon">🚪</div><div><div class="settings-row-label">Sign Out</div><div class="settings-row-sub">danie@plumbingmadeeasy.co.za</div></div></div>
-        <div class="settings-row-right">›</div>
-      </div>
-    </div>
-    <div style="text-align:center;padding:16px 0 4px">
-      <div style="font-size:11px;color:var(--text3)">Plumbing Made Easy v1.0.0 · Built for SA plumbers 🔧</div>
-    </div>
-  </div>
-
-</div><!-- /views -->
-
-<!-- BOTTOM NAV -->
-<nav class="bnav" role="navigation" aria-label="Main navigation">
-  <button class="nbtn active" onclick="setView('schedule',this)" aria-label="Schedule">
-    <span class="ni">📋</span><span class="nl">Schedule</span>
-  </button>
-  <button class="nbtn" onclick="setView('money',this)" aria-label="Money">
-    <span class="ni">💵</span><span class="nl">Money</span>
-  </button>
-  <button class="nbtn" onclick="setView('invoices',this)" aria-label="Invoices">
-    <span class="ni">🧾</span><span class="nl">Invoices</span>
-  </button>
-  <button class="nbtn" onclick="setView('new',this)" aria-label="New Job">
-    <span class="ni">➕</span><span class="nl">New Job</span>
-  </button>
-  <button class="nbtn" onclick="setView('settings',this)" aria-label="Settings">
-    <span class="ni">⚙️</span><span class="nl">Settings</span>
-  </button>
+  <button class="nav-cta" onclick="openAuth('register')">Start Free Trial</button>
+  <button class="nav-mobile-toggle" onclick="showToast('Log in or Start Free Trial above')">☰</button>
 </nav>
 
-<!-- JOB MODAL -->
-<div class="modal-ov" id="jobModal" onclick="closeJobModal(event)" role="dialog" aria-modal="true" aria-label="Job details">
-  <div class="modal" id="jobModalInner">
-    <div class="modal-handle" onclick="closeJobModal({target:document.getElementById('jobModal')})"></div>
-    <div id="modalBody"></div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">🇿🇦 Built for South African Plumbers</div>
+  <h1>Stop losing jobs<br><span class="line2">to paperwork & chaos.</span></h1>
+  <p class="hero-sub">Schedule jobs, chase invoices, and track every rand — all from your phone. <strong>No spreadsheets. No paper. No stress.</strong></p>
+  <div class="hero-actions">
+    <button class="btn-hero btn-hero-primary" onclick="openAuth('register')">Start 14-Day Free Trial</button>
+    <button class="btn-hero btn-hero-ghost" onclick="openAuth('login')">Log In</button>
+  </div>
+
+  <!-- Phone mockup -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-hdr">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="ph-logo">🔧</div>
+            <div class="ph-title">Plumbing <span>Made Easy</span></div>
+          </div>
+          <div style="font-size:9px;color:var(--text3)">🔔</div>
+        </div>
+        <div class="phone-body">
+          <div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Today's Jobs — 6</div>
+          <div class="ph-card c1">
+            <div class="ph-card-top">
+              <div class="ph-client">Brendan Fourie</div>
+              <span class="ph-badge dn">✓ Done</span>
+            </div>
+            <div class="ph-job">🔧 Geyser Burst Repair</div>
+            <div class="ph-bottom"><span class="ph-cost">R2,700</span><span class="ph-time">07:30</span></div>
+          </div>
+          <div class="ph-card c2">
+            <div class="ph-card-top">
+              <div class="ph-client">Craig van der Berg</div>
+              <span class="ph-badge ip">● In Progress</span>
+            </div>
+            <div class="ph-job">🔧 Burst Pipe — Emergency</div>
+            <div class="ph-bottom"><span class="ph-cost">R2,070</span><span class="ph-time">10:30</span></div>
+          </div>
+          <div class="ph-card c3">
+            <div class="ph-card-top">
+              <div class="ph-client">Johan Steenkamp</div>
+              <span class="ph-badge up">○ Upcoming</span>
+            </div>
+            <div class="ph-job">🔧 New Geyser 200L</div>
+            <div class="ph-bottom"><span class="ph-cost">R4,300</span><span class="ph-time">14:00</span></div>
+          </div>
+        </div>
+        <div class="phone-nav">
+          <div class="ph-nb active"><div class="ph-nb-icon">📋</div>Schedule</div>
+          <div class="ph-nb"><div class="ph-nb-icon">💵</div>Money</div>
+          <div class="ph-nb"><div class="ph-nb-icon">🧾</div>Invoices</div>
+          <div class="ph-nb"><div class="ph-nb-icon">➕</div>New Job</div>
+          <div class="ph-nb"><div class="ph-nb-icon">⚙️</div>Settings</div>
+        </div>
+      </div>
+      <div class="phone-glow"></div>
+    </div>
+  </div>
+
+  <div class="hero-trust">
+    <div class="trust-item"><span>✓</span> No setup fees</div>
+    <div class="trust-item"><span>✓</span> Cancel anytime</div>
+    <div class="trust-item"><span>✓</span> 14-day free trial</div>
+    <div class="trust-item"><span>✓</span> Works on any phone</div>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div>
+      <div class="stat-val">R46k</div>
+      <div class="stat-label">Avg. monthly revenue tracked</div>
+    </div>
+    <div>
+      <div class="stat-val">6+</div>
+      <div class="stat-label">Jobs managed per day</div>
+    </div>
+    <div>
+      <div class="stat-val">14d</div>
+      <div class="stat-label">Free trial, no card needed</div>
+    </div>
+    <div>
+      <div class="stat-val">R0</div>
+      <div class="stat-label">Setup or hidden fees</div>
+    </div>
   </div>
 </div>
 
-<!-- WEATHER MODAL -->
-<div class="modal-ov" id="weatherModal" onclick="closeWeatherModal(event)" role="dialog" aria-modal="true">
-  <div class="weather-modal">
-    <div class="modal-handle" onclick="document.getElementById('weatherModal').classList.remove('open')"></div>
-    <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px">Cape Town Forecast</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:18px">7-day outlook · Outdoor work planning</div>
-    <div id="weatherForecast"></div>
+<!-- FEATURES -->
+<div class="section" id="features">
+  <div class="section-eyebrow">Everything you need</div>
+  <div class="section-title">Run your plumbing business<br>from one screen.</div>
+  <p class="section-sub">Every feature was designed for how plumbers actually work — on the road, on the tools, no time to waste.</p>
+
+  <div class="features-grid">
+    <div class="feat-card">
+      <span class="feat-icon">📋</span>
+      <div class="feat-title">Smart Job Scheduling</div>
+      <div class="feat-desc">See all your jobs for the day at a glance. Navigate to any site with one tap. Start, update, and complete jobs right from your phone.</div>
+      <span class="feat-tag">Week view included</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🧾</span>
+      <div class="feat-title">Invoice Chasing — Automated</div>
+      <div class="feat-desc">See exactly who owes you money and for how long. Send professional payment chasers via WhatsApp in one tap — no typing required.</div>
+      <span class="feat-tag">WhatsApp integration</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">💵</span>
+      <div class="feat-title">Revenue Dashboard</div>
+      <div class="feat-desc">Track your monthly earnings, outstanding invoices, and progress toward your revenue target. Export reports for your accountant in seconds.</div>
+      <span class="feat-tag">PDF & CSV export</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📲</span>
+      <div class="feat-title">Installs Like a Native App</div>
+      <div class="feat-desc">Add it to your home screen on any phone — iPhone or Android. Works offline. No App Store. No updates to install. Just open and use.</div>
+      <span class="feat-tag">PWA — works offline</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🗺️</span>
+      <div class="feat-title">One-Tap Navigation</div>
+      <div class="feat-desc">Every job card has a Navigate button. Tap it and Google Maps opens with the client address already loaded. No copying, no typing.</div>
+      <span class="feat-tag">Google Maps built in</span>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">📞</span>
+      <div class="feat-title">Client Contact on the Go</div>
+      <div class="feat-desc">Call or WhatsApp any client directly from their job card. All contact details, job notes, and history in one place, always.</div>
+      <span class="feat-tag">No switching between apps</span>
+    </div>
   </div>
 </div>
 
-<!-- EXPORT MODAL -->
-<div class="export-modal" id="exportModal" onclick="closeExportModal(event)" role="dialog" aria-modal="true">
-  <div class="export-box">
-    <div style="font-size:36px;margin-bottom:12px">📊</div>
-    <h3>Export Report</h3>
-    <p id="exportMonthLabel">Choose format for this month</p>
-    <div class="export-options">
-      <div class="export-option" onclick="doExport('pdf')">
-        <div class="export-option-icon">📄</div>
-        <div><div class="export-option-label">PDF Summary Report</div><div class="export-option-sub">Income, jobs, outstanding invoices</div></div>
+<!-- HOW IT WORKS -->
+<div style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:60px 24px">
+  <div style="max-width:900px;margin:0 auto">
+    <div class="section-eyebrow" style="text-align:center;margin-bottom:14px">How it works</div>
+    <div class="section-title" style="text-align:center;margin-bottom:40px">Up and running in 5 minutes</div>
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="step-num">Step 01</div>
+        <div class="step-title">Sign up & add your details</div>
+        <div class="step-desc">Enter your business name, banking details, and set your monthly target. Takes 3 minutes.</div>
       </div>
-      <div class="export-option" onclick="doExport('csv')">
-        <div class="export-option-icon">📋</div>
-        <div><div class="export-option-label">CSV Spreadsheet</div><div class="export-option-sub">All jobs &amp; invoices for accounting</div></div>
+      <div class="how-step">
+        <div class="step-num">Step 02</div>
+        <div class="step-title">Schedule your first job</div>
+        <div class="step-desc">Add a client, job type, address, time, and quoted price. Your invoice is created automatically.</div>
       </div>
-      <div class="export-option" onclick="doExport('wa')">
-        <div class="export-option-icon">💬</div>
-        <div><div class="export-option-label">WhatsApp Summary</div><div class="export-option-sub">Quick stats to share with accountant</div></div>
+      <div class="how-step">
+        <div class="step-num">Step 03</div>
+        <div class="step-title">Complete, invoice, get paid</div>
+        <div class="step-desc">Mark the job done, send the invoice, and chase overdue payments via WhatsApp. All in one place.</div>
       </div>
     </div>
-    <button class="btn btn-ghost btn-full btn-sm" onclick="document.getElementById('exportModal').classList.remove('open')">Cancel</button>
+  </div>
+</div>
+
+<!-- TESTIMONIAL -->
+<div class="section" style="text-align:center">
+  <div class="section-eyebrow">From the field</div>
+  <div class="testimonial">
+    <p class="test-quote">I was losing track of invoices every week. Now I can see exactly who owes me what, send them a WhatsApp reminder in one tap, and my month-end is done in 10 minutes instead of a whole afternoon.</p>
+    <div class="test-author">
+      <div class="test-av">DV</div>
+      <div>
+        <div class="test-name">Danie Visser</div>
+        <div class="test-role">Master Plumber · Cape Town · 14 years experience</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="section" id="pricing" style="text-align:center">
+  <div class="section-eyebrow">Simple pricing</div>
+  <div class="section-title" style="margin-bottom:10px">One plan. Everything included.</div>
+  <p class="section-sub" style="margin:0 auto 40px">No per-user fees. No feature gates. No surprises.</p>
+
+  <div class="pricing-wrap">
+    <div class="price-card">
+      <div class="price-badge">⭐ Most popular</div>
+      <div class="price-name">Pro Plan</div>
+      <div class="price-amount">
+        <div class="price-currency">R</div>
+        <div class="price-number">499</div>
+      </div>
+      <div class="price-period">per month, per company</div>
+      <div class="price-trial">✓ 14-day free trial — no card required</div>
+
+      <div class="price-divider"></div>
+
+      <ul class="price-features">
+        <li>Unlimited jobs & job scheduling</li>
+        <li>Invoice creation & tracking</li>
+        <li>WhatsApp payment chasers</li>
+        <li>Revenue dashboard & reports</li>
+        <li>PDF & CSV export</li>
+        <li>Works on any phone (iOS & Android)</li>
+        <li>Installs as a home screen app</li>
+        <li>Navigate to any job site</li>
+        <li>Weather forecast for job planning</li>
+        <li>Email support</li>
+      </ul>
+
+      <button class="price-cta" onclick="openAuth('register')">Start Free Trial — No Card Needed</button>
+      <div class="price-guarantee">🔒 Cancel anytime. No contracts. No setup fees.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="section" id="faq">
+  <div class="section-eyebrow" style="text-align:center;margin-bottom:14px">Questions</div>
+  <div class="section-title" style="text-align:center;margin-bottom:40px">FAQ</div>
+  <div class="faq-list">
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Do I need a smartphone?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Any smartphone works — iPhone or Android. You open the app in your browser and add it to your home screen. No App Store needed, no downloads.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Does it work without internet?<span class="faq-icon">+</span></div>
+      <div class="faq-a">The app loads and displays your jobs even without internet. For saving new jobs or sending invoices you'll need a connection — but basic viewing works offline.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">What happens after 14 days?<span class="faq-icon">+</span></div>
+      <div class="faq-a">After your free trial you'll be prompted to subscribe for R499/month. No automatic charges — you choose when to subscribe. Your data is kept safe either way.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Can I use it for my whole team?<span class="faq-icon">+</span></div>
+      <div class="faq-a">The current plan covers one plumber per account. Multi-user team features are coming soon. If you have a team, contact us and we'll sort you out.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">How do I cancel?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Cancel anytime from the Settings screen inside the app. No notice period, no penalties. Your data can be exported before you go.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Is my data safe?<span class="faq-icon">+</span></div>
+      <div class="faq-a">Your business data is private to your account. No one else can see your jobs or invoices. We never sell your data to anyone.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER CTA -->
+<div style="background:var(--surface);border-top:1px solid var(--border);padding:60px 24px;text-align:center">
+  <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--copper-light);margin-bottom:16px">Ready to get organised?</div>
+  <div style="font-size:clamp(24px,5vw,38px);font-weight:800;letter-spacing:-1px;margin-bottom:14px">Start your free 14-day trial today.</div>
+  <div style="font-size:14px;color:var(--text3);margin-bottom:28px">No credit card. No setup. Cancel anytime.</div>
+  <button class="btn-hero btn-hero-primary" onclick="openAuth('register')">Create Free Account</button>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="nav-logo">🔧</div>
+    <div class="nav-name">Plumbing <span>Made Easy</span></div>
+  </div>
+  <div class="footer-tagline">Built for South African plumbers. Proudly local. 🇿🇦</div>
+  <div class="footer-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="mailto:support@plumbingmadeeasy.co.za">Support</a>
+  </div>
+  <div class="footer-copy">© 2025 Plumbing Made Easy. All rights reserved.</div>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="auth-overlay" id="loginModal">
+  <div class="auth-box">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🔧</div>
+      <div class="auth-logo-text">Plumbing <span>Made Easy</span></div>
+    </div>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Don't have an account? <a onclick="openAuth('register')">Start free trial →</a></div>
+    <div class="auth-group">
+      <label class="auth-label">Email address</label>
+      <input class="auth-input" type="email" placeholder="danie@yourcompany.co.za" id="login-email" autocomplete="email"/>
+    </div>
+    <div class="auth-group">
+      <label class="auth-label">Password</label>
+      <input class="auth-input" type="password" placeholder="••••••••" id="login-password" autocomplete="current-password"/>
+    </div>
+    <button class="auth-btn" onclick="doLogin()">Log In to My Account</button>
+    <div class="auth-divider"><span>or</span></div>
+    <div style="text-align:center;font-size:12px;color:var(--text3)">Forgot your password? <a style="color:var(--copper-light);cursor:pointer" onclick="showToast('📧 Password reset email sent!')">Reset it</a></div>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="auth-overlay" id="registerModal">
+  <div class="auth-box">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🔧</div>
+      <div class="auth-logo-text">Plumbing <span>Made Easy</span></div>
+    </div>
+    <div class="auth-title">Start your free trial</div>
+    <div class="auth-sub">Already have an account? <a onclick="openAuth('login')">Log in →</a></div>
+
+    <div class="auth-trial-badge">
+      <div class="atb-icon">🎉</div>
+      <div class="atb-text">14 days free — no credit card required. Cancel anytime.</div>
+    </div>
+
+    <div class="auth-row">
+      <div class="auth-group">
+        <label class="auth-label">First name</label>
+        <input class="auth-input" type="text" placeholder="Danie" id="reg-firstname" autocomplete="given-name"/>
+      </div>
+      <div class="auth-group">
+        <label class="auth-label">Last name</label>
+        <input class="auth-input" type="text" placeholder="Visser" id="reg-lastname" autocomplete="family-name"/>
+      </div>
+    </div>
+    <div class="auth-group">
+      <label class="auth-label">Business name</label>
+      <input class="auth-input" type="text" placeholder="Visser Plumbing CC" id="reg-business" autocomplete="organization"/>
+    </div>
+    <div class="auth-group">
+      <label class="auth-label">Email address</label>
+      <input class="auth-input" type="email" placeholder="danie@yourcompany.co.za" id="reg-email" autocomplete="email"/>
+    </div>
+    <div class="auth-group">
+      <label class="auth-label">Password</label>
+      <input class="auth-input" type="password" placeholder="At least 8 characters" id="reg-password" autocomplete="new-password"/>
+    </div>
+
+    <div class="plan-summary">
+      <div class="plan-summary-row">
+        <span class="plan-summary-label">Plan</span>
+        <span class="plan-summary-val">Pro Plan</span>
+      </div>
+      <div class="plan-summary-row">
+        <span class="plan-summary-label">Free trial</span>
+        <span class="plan-summary-val green">14 days free</span>
+      </div>
+      <div class="plan-summary-row">
+        <span class="plan-summary-label">Then</span>
+        <span class="plan-summary-val copper">R499/month</span>
+      </div>
+    </div>
+
+    <button class="auth-btn" onclick="doRegister()">Create Free Account →</button>
+    <div class="auth-terms">By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</div>
   </div>
 </div>
 
 <!-- TOAST -->
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<!-- SERVICE WORKER REGISTRATION -->
-<script>
-if('serviceWorker' in navigator){
-  const swCode = `
-    const CACHE = 'pme-v1';
-    const STATIC = ['/', '/index.html'];
-    self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll([]))); self.skipWaiting(); });
-    self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))); self.clients.claim(); });
-    self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
-  `;
-  const swBlob = new Blob([swCode], {type:'application/javascript'});
-  const swURL = URL.createObjectURL(swBlob);
-  navigator.serviceWorker.register(swURL).catch(()=>{});
-}
-</script>
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-size:13px;font-weight:600;padding:11px 22px;border-radius:99px;z-index:600;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.5)"></div>
 
 <script>
-// ══════════════════════════════════════════════════════
-// DATA
-// ══════════════════════════════════════════════════════
-const todayStr = new Date().toISOString().split('T')[0];
-let selectedDateFilter = null;
-let revenueTarget = 55000;
-
-let jobs = [
-  {id:1,client:'Brendan Fourie',phone:'082 341 7892',email:'brendan.fourie@gmail.com',type:'Geyser Burst — Emergency Repair',addr:'27 Buitenkant Street, Gardens, Cape Town, 8001',suburb:'Gardens, Cape Town',time:'07:30',date:todayStr,callout:350,labour:1200,parts:1150,cost:2700,status:'completed',priority:'emergency',notes:'200L geyser, element and thermostat both failed. Client had no hot water for 2 days. Replaced element, thermostat and pressure valve. Test ran fine.',invoiceStatus:'sent',invNo:'PME-2025-047'},
-  {id:2,client:'Naledi Khumalo',phone:'071 556 3310',email:'naledi.khumalo@webmail.co.za',type:'Blocked Drain — Hydro Jetting',addr:'54 Voortrekker Road, Bellville, Cape Town, 7530',suburb:'Bellville',time:'09:00',date:todayStr,callout:350,labour:550,parts:0,cost:900,status:'completed',priority:'normal',notes:'Kitchen drain blocked solid. Used hydro jetter — cleared grease build-up and food debris from P-trap to main stack. Advised client on using drain guard.',invoiceStatus:'paid',invNo:'PME-2025-046'},
-  {id:3,client:'Craig van der Berg',phone:'083 219 4450',email:'c.vdberg@outlook.com',type:'Burst Pipe — Emergency',addr:'8 Fresnaye Avenue, Sea Point, Cape Town, 8005',suburb:'Sea Point',time:'10:30',date:todayStr,callout:550,labour:1100,parts:420,cost:2070,status:'inprogress',priority:'emergency',notes:'15mm copper pipe burst under kitchen sink — probable freeze damage. Water turned off at mains by client. Need to replace 600mm section and two compression fittings. Check condition of surrounding pipes while there.',invoiceStatus:'draft',invNo:'PME-2025-048'},
-  {id:4,client:'Priya Naidoo',phone:'074 883 2201',email:'priya.naidoo@fnb.co.za',type:'Geyser Thermostat Replacement',addr:'142 Jan Smuts Avenue, Parkwood, Sandton, 2193',suburb:'Parkwood, Sandton',time:'12:00',date:todayStr,callout:350,labour:650,parts:380,cost:1380,status:'upcoming',priority:'normal',notes:'Geyser running constantly, thermostat stuck open. Needs 55-65°C thermostat. Check element resistance before committing — might need full element swap too.',invoiceStatus:'draft',invNo:'PME-2025-049'},
-  {id:5,client:'Johan Steenkamp',phone:'060 774 9983',email:'johansteenkamp@telkom.net',type:'New Geyser Installation (200L)',addr:'33 Kloof Street, Tamboerskloof, Cape Town, 8001',suburb:'Tamboerskloof',time:'14:00',date:todayStr,callout:0,labour:2200,parts:2100,cost:4300,status:'upcoming',priority:'normal',notes:'Old 150L Kwikot to be removed and disposed. Installing new Ariston 200L. Check geyser blanket and drip tray condition. COC required — remember to issue compliance certificate.',invoiceStatus:'draft',invNo:'PME-2025-050'},
-  {id:6,client:'Ayanda Mokoena',phone:'079 334 5512',email:'ayanda.m@standardbank.co.za',type:'Bathroom Renovation Plumbing',addr:'91 Barry Hertzog Avenue, Emmarentia, Johannesburg, 2195',suburb:'Emmarentia, Johannesburg',time:'16:30',date:todayStr,callout:0,labour:3800,parts:2100,cost:5900,status:'upcoming',priority:'normal',notes:'Relocate shower drain 600mm south. New basin waste and overflow. Replace 1" supply pipes with 22mm copper throughout. Full bathroom re-pipe job. Quote was accepted. 50% deposit already received — R2,950.',invoiceStatus:'draft',invNo:'PME-2025-051'},
-];
-
-const invoices = [
-  {id:201,client:'Werner Pietersen',phone:'083 662 1145',email:'wpietersen@webmail.co.za',job:'New Geyser Installation (150L)',addr:'19 Durban Road, Mowbray, Cape Town',amount:3900,daysOverdue:11,status:'overdue',invNo:'PME-2025-038',invoiceDate:'26 May 2025',dueDate:'2 Jun 2025'},
-  {id:202,client:'Lindiwe Zulu',phone:'071 990 4432',email:'lindiwe.zulu@hotmail.com',job:'Blocked Drain — Hydro Jetting',addr:'77 Adderley Street, Cape Town CBD, 8001',amount:900,daysOverdue:5,status:'overdue',invNo:'PME-2025-042',invoiceDate:'1 Jun 2025',dueDate:'1 Jun 2025'},
-  {id:203,client:'Stefan Holm',phone:'082 115 7730',email:'s.holm@hollard.co.za',job:'Burst Pipe — Emergency Repair',addr:'3 Stellenberg Road, Parow, Cape Town',amount:1850,daysOverdue:14,status:'overdue',invNo:'PME-2025-034',invoiceDate:'23 May 2025',dueDate:'30 May 2025'},
-  {id:204,client:'Megan October',phone:'073 441 8891',email:'megoctoberct@gmail.com',job:'Toilet Cistern Repair + Seat Replacement',addr:'55 Beach Road, Strand, 7140',amount:820,daysOverdue:3,status:'sent',invNo:'PME-2025-044',invoiceDate:'3 Jun 2025',dueDate:'3 Jun 2025'},
-  {id:205,client:'Rudi Louw',phone:'083 887 4456',email:'rudi.louw@gmail.com',job:'Pressure Reducing Valve Replacement',addr:'12 Du Toit Street, Paarl, 7646',amount:980,daysOverdue:1,status:'sent',invNo:'PME-2025-045',invoiceDate:'5 Jun 2025',dueDate:'5 Jun 2025'},
-  {id:206,client:'Naledi Khumalo',phone:'071 556 3310',email:'naledi.khumalo@webmail.co.za',job:'Blocked Drain — Hydro Jetting',addr:'54 Voortrekker Road, Bellville',amount:900,daysOverdue:0,status:'paid',paidDate:'6 Jun 2025',invNo:'PME-2025-046'},
-  {id:207,client:'Brendan Fourie',phone:'082 341 7892',email:'brendan.fourie@gmail.com',job:'Geyser Burst Emergency Repair',addr:'27 Buitenkant Street, Gardens',amount:2700,daysOverdue:0,status:'paid',paidDate:'5 Jun 2025',invNo:'PME-2025-047'},
-  {id:208,client:'Thabo Sithole',phone:'061 223 9987',email:'t.sithole@gmail.com',job:'Solar Geyser Conversion',addr:'28 Wierda Road, Sandton, 2196',amount:8400,daysOverdue:0,status:'paid',paidDate:'1 Jun 2025',invNo:'PME-2025-039'},
-  {id:209,client:'Anita Smit',phone:'082 775 3311',email:'anita.smit@mweb.co.za',job:'Bathroom Renovation Plumbing',addr:'6 Vineyard Road, Claremont, 7708',amount:7200,daysOverdue:0,status:'paid',paidDate:'29 May 2025',invNo:'PME-2025-036'},
-  {id:210,client:'Kobus van Wyk',phone:'083 440 2278',email:'kobus.vanwyk@absa.co.za',job:'New Geyser Installation (200L) + COC',addr:'41 Bosman Street, Bellville, 7530',amount:4650,daysOverdue:0,status:'paid',paidDate:'28 May 2025',invNo:'PME-2025-035'},
-];
-
-const recentIncome=[
-  {client:'Naledi Khumalo',initials:'NK',color:'#1d4ed8',job:'Blocked Drain — Hydro Jetting',amount:900,date:'Today'},
-  {client:'Brendan Fourie',initials:'BF',color:'#7c3aed',job:'Geyser Burst Emergency Repair',amount:2700,date:'5 Jun'},
-  {client:'Thabo Sithole',initials:'TS',color:'#065f46',job:'Solar Geyser Conversion',amount:8400,date:'1 Jun'},
-  {client:'Anita Smit',initials:'AS',color:'#9d174d',job:'Bathroom Renovation Plumbing',amount:7200,date:'29 May'},
-  {client:'Kobus van Wyk',initials:'KV',color:'#92400e',job:'Geyser Install (200L) + COC',amount:4650,date:'28 May'},
-  {client:'Sandra Olivier',initials:'SO',color:'#134e4a',job:'Toilet Cistern + Tap Replacement',amount:1340,date:'27 May'},
-];
-
-const jobTypeBreakdown=[
-  {type:'Geyser Work',count:8,revenue:28400,color:'var(--blue)'},
-  {type:'Blocked Drains',count:6,revenue:5400,color:'var(--teal)'},
-  {type:'Pipe Repairs',count:4,revenue:7400,color:'var(--teal)'},
-  {type:'Bathroom Renos',count:2,revenue:15600,color:'var(--amber)'},
-];
-
-const notifications=[
-  {id:1,text:'⚠️ Stefan Holm — PME-2025-034 is 14 days overdue · R1,850',time:'Just now',read:false},
-  {id:2,text:'🔔 Werner Pietersen — R3,900 overdue 11 days · Send a chaser',time:'2 hrs ago',read:false},
-  {id:3,text:'✅ Naledi Khumalo paid invoice PME-2025-046 · R900 received',time:'Today 09:15',read:false},
-  {id:4,text:'📅 Johan Steenkamp job at 14:00 — Kloof Street, Tamboerskloof',time:'Today 08:00',read:true},
-  {id:5,text:'💰 84% of June target reached · R46,190 collected',time:'Yesterday',read:true},
-];
-
-const forecast=[
-  {day:'Today',icon:'⛅',temp:'19°C',desc:'Partly cloudy',note:'Good for outdoor work'},
-  {day:'Tomorrow',icon:'🌧️',temp:'16°C',desc:'Showers expected',note:'Indoor jobs preferred'},
-  {day:'Wednesday',icon:'🌦️',temp:'17°C',desc:'Light rain morning',note:'Afternoon clear'},
-  {day:'Thursday',icon:'☀️',temp:'22°C',desc:'Sunny & warm',note:'Ideal outdoor work'},
-  {day:'Friday',icon:'☀️',temp:'24°C',desc:'Clear skies',note:'Ideal outdoor work'},
-  {day:'Saturday',icon:'🌤️',temp:'21°C',desc:'Mostly sunny',note:'Good conditions'},
-  {day:'Sunday',icon:'🌥️',temp:'18°C',desc:'Overcast',note:'Fine for all jobs'},
-];
-
-// ══════════════════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════════════════
-function fmt(n){return'R'+Number(n).toLocaleString('en-ZA')}
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3200);
+// ── AUTH FLOW ──
+function openAuth(type){
+  closeAuth();
+  const id = type === 'login' ? 'loginModal' : 'registerModal';
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
-function navigate(addr){window.open('https://maps.google.com/?q='+encodeURIComponent(addr),'_blank')}
-function callClient(phone){window.open('tel:'+phone.replace(/\s/g,''))}
-
-// ══════════════════════════════════════════════════════
-// HEADER
-// ══════════════════════════════════════════════════════
-function initHeader(){
-  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const d=new Date();
-  document.getElementById('hdrDate').textContent=`${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} · Danie Visser`;
-  const monthLabel=`${months[d.getMonth()]} ${d.getFullYear()} — Summary`;
-  document.getElementById('moneyMonthLabel').textContent=monthLabel;
-  document.getElementById('exportMonthLabel').textContent=`Choose format for ${months[d.getMonth()]} ${d.getFullYear()}`;
+function closeAuth(){
+  document.querySelectorAll('.auth-overlay').forEach(el => el.classList.remove('open'));
+  document.body.style.overflow = '';
 }
-
-// ══════════════════════════════════════════════════════
-// PWA INSTALL
-// ══════════════════════════════════════════════════════
-let deferredInstallPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();
-  deferredInstallPrompt=e;
-  setTimeout(()=>document.getElementById('installBanner').classList.add('visible'),2000);
+document.querySelectorAll('.auth-overlay').forEach(el => {
+  el.addEventListener('click', e => { if(e.target === el) closeAuth(); });
 });
-function doInstall(){
-  if(deferredInstallPrompt){
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.then(()=>{deferredInstallPrompt=null;dismissInstall();});
-  } else {
-    showToast('📲 Use your browser menu → "Add to Home Screen"');
-  }
-}
-function dismissInstall(){
-  document.getElementById('installBanner').classList.remove('visible');
-}
-window.addEventListener('appinstalled',()=>{dismissInstall();showToast('🎉 App installed successfully!');});
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAuth(); });
 
-// ══════════════════════════════════════════════════════
-// NOTIFICATIONS
-// ══════════════════════════════════════════════════════
-function renderNotifs(){
-  const unread=notifications.filter(n=>!n.read).length;
-  document.getElementById('notifDot').className='notif-dot'+(unread?' visible':'');
-  document.getElementById('notifList').innerHTML=notifications.map(n=>`
-    <div class="notif-item${n.read?'':' unread'}" onclick="readNotif(${n.id})">
-      <div class="notif-dot-i${n.read?' read':''}"></div>
-      <div>
-        <div class="notif-text">${n.text}</div>
-        <div class="notif-time">${n.time}</div>
-      </div>
-    </div>`).join('');
-}
-function readNotif(id){const n=notifications.find(x=>x.id===id);if(n)n.read=true;renderNotifs();}
-function clearNotifs(){notifications.forEach(n=>n.read=true);renderNotifs();showToast('✓ All notifications cleared');}
-function pushNotif(text){notifications.unshift({id:Date.now(),text,time:'Just now',read:false});renderNotifs();}
-
-function toggleNotifPanel(e){
-  e.stopPropagation();
-  const np=document.getElementById('notifPanel'),pp=document.getElementById('profilePanel'),ov=document.getElementById('panelOv');
-  if(np.classList.contains('open')){closePanels();return;}
-  pp.classList.remove('open');np.classList.add('open');ov.classList.add('open');
-  renderNotifs();
-}
-function toggleProfilePanel(e){
-  e.stopPropagation();
-  const pp=document.getElementById('profilePanel'),np=document.getElementById('notifPanel'),ov=document.getElementById('panelOv');
-  if(pp.classList.contains('open')){closePanels();return;}
-  np.classList.remove('open');pp.classList.add('open');ov.classList.add('open');
-}
-function closePanels(){
-  document.getElementById('notifPanel').classList.remove('open');
-  document.getElementById('profilePanel').classList.remove('open');
-  document.getElementById('panelOv').classList.remove('open');
+function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-password').value;
+  if(!email || !pass){ showToast('⚠️ Please enter your email and password'); return; }
+  if(!email.includes('@')){ showToast('⚠️ Please enter a valid email'); return; }
+  // Simulate login → redirect to app
+  showToast('✓ Logging you in...');
+  setTimeout(() => {
+    // In production: validate against Supabase here
+    // For now, redirect to the app file
+    window.location.href = 'app.html';
+  }, 1000);
 }
 
-// ══════════════════════════════════════════════════════
-// WEATHER
-// ══════════════════════════════════════════════════════
-function openWeatherModal(){
-  document.getElementById('weatherForecast').innerHTML=forecast.map(w=>`
-    <div class="weather-day">
-      <div class="wd-left">
-        <div class="wd-icon">${w.icon}</div>
-        <div><div class="wd-name">${w.day}</div><div class="wd-desc">${w.desc}</div></div>
-      </div>
-      <div><div class="wd-temp">${w.temp}</div><div class="wd-note">${w.note}</div></div>
-    </div>`).join('');
-  document.getElementById('weatherModal').classList.add('open');
-}
-function closeWeatherModal(e){if(e.target.id==='weatherModal')document.getElementById('weatherModal').classList.remove('open');}
-
-// ══════════════════════════════════════════════════════
-// EXPORT
-// ══════════════════════════════════════════════════════
-function exportModal(){document.getElementById('exportModal').classList.add('open');}
-function closeExportModal(e){if(e.target.id==='exportModal')document.getElementById('exportModal').classList.remove('open');}
-function doExport(type){
-  document.getElementById('exportModal').classList.remove('open');
-  if(type==='pdf') showToast('📄 PDF report generating...');
-  else if(type==='csv') showToast('📋 CSV export downloading...');
-  else if(type==='wa'){
-    const paid=invoices.filter(i=>i.status==='paid');
-    const unpaid=invoices.filter(i=>i.status!=='paid');
-    const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const d=new Date();
-    const msg=`📊 *PME Report — ${months[d.getMonth()]} ${d.getFullYear()}*\n\n💰 Collected: *${fmt(paid.reduce((s,i)=>s+i.amount,0))}* (${paid.length} invoices)\n⏳ Outstanding: *${fmt(unpaid.reduce((s,i)=>s+i.amount,0))}* (${unpaid.length} invoices)\n✅ Jobs completed: ${jobs.filter(j=>j.status==='completed').length}\n\nGenerated by Plumbing Made Easy 🔧`;
-    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-  }
+function doRegister(){
+  const first = document.getElementById('reg-firstname').value.trim();
+  const last = document.getElementById('reg-lastname').value.trim();
+  const biz = document.getElementById('reg-business').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-password').value;
+  if(!first || !last || !biz || !email || !pass){ showToast('⚠️ Please fill in all fields'); return; }
+  if(!email.includes('@')){ showToast('⚠️ Please enter a valid email'); return; }
+  if(pass.length < 8){ showToast('⚠️ Password must be at least 8 characters'); return; }
+  showToast('🎉 Account created! Starting your trial...');
+  setTimeout(() => {
+    // In production: create account in Supabase here
+    window.location.href = 'app.html';
+  }, 1200);
 }
 
-// ══════════════════════════════════════════════════════
-// WEEK STRIP
-// ══════════════════════════════════════════════════════
-let weekOpen=false;
-function toggleWeek(el){
-  weekOpen=!weekOpen;
-  document.getElementById('weekStrip').style.display=weekOpen?'block':'none';
-  el.innerHTML=weekOpen?'📅 Hide Week':'📅 Week View';
-  if(weekOpen) buildWeekStrip();
-}
-function buildWeekStrip(){
-  const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const now=new Date();
-  let html='<div class="wstrip">';
-  for(let i=-1;i<=5;i++){
-    const d=new Date(now);d.setDate(now.getDate()+i);
-    const ds=d.toISOString().split('T')[0];
-    const isToday=i===0,isSel=ds===selectedDateFilter;
-    const dots=jobs.filter(j=>j.date===ds).slice(0,3).map(()=>'<div class="djob-dot"></div>').join('');
-    html+=`<div class="wday ${isToday?'today':''} ${isSel&&!isToday?'selected':''}" onclick="jumpToDate('${ds}')">
-      <span class="dn">${dayNames[d.getDay()]}</span>
-      <span class="dd">${d.getDate()}</span>
-      <div class="djobs">${dots||'<div style="height:5px"></div>'}</div>
-    </div>`;
-  }
-  html+='</div>';
-  document.getElementById('weekStrip').innerHTML=html;
-}
-function jumpToDate(ds){
-  selectedDateFilter=ds===todayStr?null:ds;
-  renderJobs();buildWeekStrip();
-  const banner=document.getElementById('dateFilterBanner');
-  if(selectedDateFilter){
-    const d=new Date(ds+'T12:00:00');
-    const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    document.getElementById('dateFilterText').textContent=`📅 Showing: ${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`;
-    banner.classList.add('visible');
-  } else {banner.classList.remove('visible');}
-}
-function clearDateFilter(){selectedDateFilter=null;renderJobs();buildWeekStrip();document.getElementById('dateFilterBanner').classList.remove('visible');}
-
-// ══════════════════════════════════════════════════════
-// JOBS
-// ══════════════════════════════════════════════════════
-function renderJobs(){
-  const filterDate=selectedDateFilter||todayStr;
-  const filtered=jobs.filter(j=>j.date===filterDate).sort((a,b)=>a.time.localeCompare(b.time));
-  document.getElementById('jobCountBadge').textContent=jobs.filter(j=>j.date===todayStr).length+' jobs';
-
-  const em=jobs.find(j=>j.status==='inprogress'&&j.priority==='emergency'&&j.date===todayStr);
-  const ub=document.getElementById('urgencyBanner');
-  if(em){ub.style.display='flex';document.getElementById('urgencyText').innerHTML=`Emergency: <strong>${em.client}</strong> — ${em.suburb}. <strong>In Progress now.</strong>`;}
-  else{ub.style.display='none';}
-
-  const list=document.getElementById('jobsList');
-  if(!filtered.length){
-    list.innerHTML=`<div class="empty"><div class="empty-icon">🎉</div><div class="empty-text">${filterDate===todayStr?'No jobs today.<br>Tap ➕ to schedule one.':'No jobs for this date.'}</div></div>`;
-    return;
-  }
-  list.innerHTML=filtered.map(j=>{
-    const bc=j.status==='completed'?'b-completed':j.status==='inprogress'?'b-inprogress':'b-upcoming';
-    const bl=j.status==='completed'?'✓ Done':j.status==='inprogress'?'● In Progress':'○ Upcoming';
-    const pt=j.priority==='emergency'?`<span class="badge b-urgent" style="margin-left:4px">🚨 Emergency</span>`:j.priority==='urgent'?`<span class="badge b-urgent" style="margin-left:4px">⚡ Urgent</span>`:'';
-    return`<div class="jcard ${j.status}" onclick="openJobModal(${j.id})">
-      <div class="jcard-top">
-        <span class="jcard-time">${j.time}</span>
-        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end"><span class="badge ${bc}">${bl}</span>${pt}</div>
-      </div>
-      <div class="jcard-client">${j.client}</div>
-      <div class="jcard-type">🔧 ${j.type}</div>
-      <div class="jcard-addr">📍 ${j.suburb}</div>
-      <div class="jcard-footer">
-        <span class="jcard-cost">${fmt(j.cost)}</span>
-        <div class="jcard-actions">
-          <div class="mbtn" onclick="event.stopPropagation();callClient('${j.phone}')">📞 Call</div>
-          <div class="mbtn" onclick="event.stopPropagation();navigate('${j.addr}')">🗺️ Navigate</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+// ── FAQ ──
+function toggleFaq(el){
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('open'));
+  if(!isOpen) el.classList.add('open');
 }
 
-function openJobModal(id){
-  const j=jobs.find(x=>x.id===id);if(!j)return;
-  const bc=j.status==='completed'?'b-completed':j.status==='inprogress'?'b-inprogress':'b-upcoming';
-  const bl=j.status==='completed'?'Completed':j.status==='inprogress'?'In Progress':'Upcoming';
-  const ibc=j.invoiceStatus==='paid'?'b-paid':j.invoiceStatus==='sent'?'b-sent':'b-draft';
-  const ibl=j.invoiceStatus==='paid'?'✓ Paid':j.invoiceStatus==='sent'?'Sent':'Draft';
-  let action='';
-  if(j.status==='completed'){
-    action=`<div class="complete-prompt">
-      <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px">✅ Job completed — invoice ready</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">${j.invNo} · ${fmt(j.cost)} · <span class="badge ${ibc}">${ibl}</span></div>
-      ${j.invoiceStatus!=='paid'?`<button class="btn btn-success btn-full btn-sm" onclick="sendInvoice(${j.id})">📧 Send Invoice (${fmt(j.cost)})</button>`:`<div style="font-size:13px;color:var(--green);font-weight:700;text-align:center">💰 Paid — all done!</div>`}
-    </div>`;
-  } else if(j.status==='inprogress'){
-    action=`<button class="btn btn-success btn-full" style="margin-bottom:8px" onclick="markComplete(${j.id})">✅ Mark Complete</button>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="callClient('${j.phone}')">📞 Call</button>
-      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="navigate('${j.addr}')">🗺️ Navigate</button>
-    </div>`;
-  } else {
-    action=`<button class="btn btn-amber btn-full" style="margin-bottom:8px" onclick="startJob(${j.id})">▶ Start Job Now</button>
-    <button class="btn btn-primary btn-full" style="margin-bottom:8px" onclick="markComplete(${j.id})">✅ Mark Complete</button>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="callClient('${j.phone}')">📞 Call</button>
-      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="navigate('${j.addr}')">🗺️ Navigate</button>
-    </div>`;
-  }
-  document.getElementById('modalBody').innerHTML=`
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
-      <div class="modal-title">${j.client}</div><span class="badge ${bc}">${bl}</span>
-    </div>
-    <div class="modal-sub">${j.type} · ${j.invNo}</div>
-    <div class="mrow"><div class="mrow-icon">🕐</div><div><div class="mrow-lbl">Time</div><div class="mrow-val">${j.time} · ${j.date}</div></div></div>
-    <div class="mrow"><div class="mrow-icon">📍</div><div><div class="mrow-lbl">Address</div><div class="mrow-val">${j.addr}</div></div></div>
-    <div class="mrow"><div class="mrow-icon">📞</div><div><div class="mrow-lbl">Contact</div><div class="mrow-val">${j.phone}${j.email?' · '+j.email:''}</div></div></div>
-    <div class="mrow"><div class="mrow-icon">💰</div><div>
-      <div class="mrow-lbl">Quoted Price</div>
-      <div class="mrow-val money">${fmt(j.cost)}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px">Call-out: ${fmt(j.callout)} · Labour: ${fmt(j.labour)} · Parts: ${fmt(j.parts)}</div>
-    </div></div>
-    <div class="mrow"><div class="mrow-icon">🗒️</div><div><div class="mrow-lbl">Notes</div><div class="mrow-val" style="font-size:13px;line-height:1.55">${j.notes}</div></div></div>
-    <div class="mrow"><div class="mrow-icon">⚡</div><div><div class="mrow-lbl">Priority</div><div class="mrow-val">${j.priority.charAt(0).toUpperCase()+j.priority.slice(1)}</div></div></div>
-    <div class="divider"></div>${action}`;
-  document.getElementById('jobModal').classList.add('open');
+// ── TOAST ──
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 3000);
 }
 
-function startJob(id){
-  const j=jobs.find(x=>x.id===id);if(!j)return;
-  j.status='inprogress';openJobModal(id);renderJobs();
-  pushNotif(`▶ Started: ${j.client} — ${j.type}`);
-  showToast('▶ '+j.client+' job started!');
-}
-function markComplete(id){
-  const j=jobs.find(x=>x.id===id);if(!j)return;
-  j.status='completed';j.invoiceStatus='sent';openJobModal(id);renderJobs();renderDashboard();
-  pushNotif(`✅ Completed: ${j.client} · ${fmt(j.cost)} invoice sent`);
-  showToast('✅ '+j.client+' — job complete!');
-}
-function sendInvoice(id){
-  const j=jobs.find(x=>x.id===id);if(!j)return;
-  j.invoiceStatus='sent';showToast('📧 Invoice '+j.invNo+' sent!');closeJobModal();
-}
-function closeJobModal(e){if(!e||e.target.id==='jobModal')document.getElementById('jobModal').classList.remove('open');}
-
-// ══════════════════════════════════════════════════════
-// DASHBOARD
-// ══════════════════════════════════════════════════════
-function renderDashboard(){
-  const paid=invoices.filter(i=>i.status==='paid');
-  const unpaid=invoices.filter(i=>i.status!=='paid');
-  const tp=paid.reduce((s,i)=>s+i.amount,0);
-  const tu=unpaid.reduce((s,i)=>s+i.amount,0);
-  const pct=Math.min(100,Math.round((tp/revenueTarget)*100));
-  document.getElementById('s-earned').textContent=fmt(tp);
-  document.getElementById('s-earnedsub').textContent='across '+paid.length+' paid job'+(paid.length!==1?'s':'');
-  document.getElementById('s-pending').textContent=fmt(tu);
-  document.getElementById('s-pendingsub').textContent=unpaid.length+' invoice'+(unpaid.length!==1?'s':'')+' owed';
-  document.getElementById('s-weekjobs').textContent=jobs.filter(j=>j.status==='completed').length;
-  document.getElementById('s-progfill').style.width=pct+'%';
-  document.getElementById('s-pct').textContent=pct+'% of target';
-  document.getElementById('incomeList').innerHTML=recentIncome.map(r=>`
-    <div class="income-item">
-      <div class="inc-av" style="background:${r.color}">${r.initials}</div>
-      <div class="inc-info"><div class="inc-name">${r.client}</div><div class="inc-job">${r.job}</div></div>
-      <div class="inc-right"><div class="inc-amt">+${fmt(r.amount)}</div><div class="inc-date">${r.date}</div></div>
-    </div>`).join('');
-  const tot=jobTypeBreakdown.reduce((s,j)=>s+j.revenue,0);
-  document.getElementById('jobTypes').innerHTML=jobTypeBreakdown.map(jt=>`
-    <div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-        <span style="font-size:13px;font-weight:600;color:var(--text)">${jt.type}</span>
-        <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--text2)">${fmt(jt.revenue)} <span style="color:var(--text3);font-size:10px">(${jt.count})</span></span>
-      </div>
-      <div class="prog-track" style="height:6px"><div class="prog-fill" style="width:${Math.round((jt.revenue/tot)*100)}%;background:${jt.color}"></div></div>
-    </div>`).join('');
-}
-
-// ══════════════════════════════════════════════════════
-// INVOICES
-// ══════════════════════════════════════════════════════
-let invTab='unpaid';
-function setInvTab(tab,el){invTab=tab;document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderInvoices();}
-function renderInvoices(){
-  const unpaid=invoices.filter(i=>i.status!=='paid'),paid=invoices.filter(i=>i.status==='paid');
-  document.getElementById('invSummary').textContent=fmt(unpaid.reduce((s,i)=>s+i.amount,0))+' outstanding';
-  const items=invTab==='unpaid'?unpaid:paid;
-  const list=document.getElementById('invList');
-  if(!items.length){
-    list.innerHTML=`<div class="empty"><div class="empty-icon">${invTab==='unpaid'?'🎉':'📭'}</div><div class="empty-text">${invTab==='unpaid'?'No outstanding invoices!':'No paid invoices yet.'}</div></div>`;
-    return;
-  }
-  list.innerHTML=items.map(inv=>{
-    if(inv.status==='paid') return`<div class="invcard">
-      <div class="inv-top"><div><div class="inv-client">${inv.client}</div><div class="inv-job">${inv.job}</div><div class="inv-addr">📍 ${inv.addr}</div></div><div class="inv-amt paid">${fmt(inv.amount)}</div></div>
-      <div class="inv-meta"><span class="badge b-paid">✓ Paid</span><span style="font-size:11px;color:var(--text3)">${inv.invNo}</span><span style="font-size:11px;color:var(--text3)">${inv.paidDate}</span></div>
-    </div>`;
-    const isOv=inv.status==='overdue';
-    const cls=isOv&&inv.daysOverdue>=7?'overdue urgent':isOv?'overdue':'';
-    const bc=isOv?'b-overdue':inv.status==='sent'?'b-sent':'b-draft';
-    const bl=isOv?'Overdue':inv.status==='sent'?'Sent':'Draft';
-    return`<div class="invcard ${cls}">
-      <div class="inv-top"><div><div class="inv-client">${inv.client}</div><div class="inv-job">${inv.job}</div><div class="inv-addr">📍 ${inv.addr}</div></div><div class="inv-amt">${fmt(inv.amount)}</div></div>
-      <div class="inv-meta"><span class="badge ${bc}">${bl}</span>${inv.daysOverdue>0?`<span class="overdue-tag">⚠️ ${inv.daysOverdue}d overdue</span>`:''}<span style="font-size:10px;color:var(--text3)">${inv.invNo} · Due ${inv.dueDate}</span></div>
-      <div class="inv-btns">
-        <div class="mbtn danger" onclick="toggleChaser(${inv.id})">📣 Send Chaser</div>
-        <div class="mbtn" onclick="callClient('${inv.phone}')">📞 Call</div>
-        <div class="mbtn success" onclick="markPaid(${inv.id})">✓ Mark Paid</div>
-      </div>
-      <div class="chaser-box" id="chaser_${inv.id}">
-        <div class="chaser-lbl">✉️ Ready to Send</div>
-        <div class="chaser-msg" id="chaserMsg_${inv.id}">Hi ${inv.client.split(' ')[0]},
-
-Trust you are well. This is a friendly payment reminder from Plumbing Made Easy.
-
-Invoice: *${inv.invNo}*
-Service: ${inv.job}
-Amount Due: *${fmt(inv.amount)}*${inv.daysOverdue>0?`\nDays Overdue: *${inv.daysOverdue} days*`:''}
-
-Payment via EFT:
-• Danie Visser Plumbing
-• Account: 62834910274 (FNB)
-• Branch: 250655
-• Reference: ${inv.invNo}
-
-Contact: 082 555 1234
-
-Thank you 🔧
-Danie Visser — Plumbing Made Easy</div>
-        <div class="chaser-actions">
-          <div class="mbtn whatsapp" onclick="sendWA(${inv.id},'${inv.phone}')">💬 WhatsApp</div>
-          <div class="mbtn" onclick="copyChaser(${inv.id})">📋 Copy</div>
-          <div class="mbtn" onclick="toggleChaser(${inv.id})">✕</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-function toggleChaser(id){document.getElementById('chaser_'+id).classList.toggle('open');}
-function copyChaser(id){
-  const txt=document.getElementById('chaserMsg_'+id).textContent;
-  navigator.clipboard.writeText(txt).then(()=>showToast('📋 Copied!')).catch(()=>{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('📋 Copied!');});
-}
-function sendWA(id,phone){
-  const txt=document.getElementById('chaserMsg_'+id).textContent;
-  window.open('https://wa.me/'+phone.replace(/\s/g,'').replace(/^0/,'27')+'?text='+encodeURIComponent(txt),'_blank');
-}
-function markPaid(id){
-  const inv=invoices.find(i=>i.id===id);if(!inv)return;
-  inv.status='paid';inv.paidDate='Today';inv.daysOverdue=0;
-  renderInvoices();renderDashboard();
-  pushNotif(`💰 ${inv.client} paid · ${fmt(inv.amount)} received`);
-  showToast('💰 Payment of '+fmt(inv.amount)+' recorded!');
-}
-
-// ══════════════════════════════════════════════════════
-// NEW JOB FORM
-// ══════════════════════════════════════════════════════
-function calcTotal(){
-  const c=parseFloat(document.getElementById('f-callout').value)||0;
-  const l=parseFloat(document.getElementById('f-labour').value)||0;
-  const p=parseFloat(document.getElementById('f-parts').value)||0;
-  if(c||l||p) document.getElementById('f-total').value=c+l+p;
-}
-['f-callout','f-labour','f-parts'].forEach(id=>document.getElementById(id).addEventListener('input',calcTotal));
-
-function submitJob(){
-  const name=document.getElementById('f-name').value.trim();
-  const phone=document.getElementById('f-phone').value.trim();
-  const email=document.getElementById('f-email').value.trim();
-  const type=document.getElementById('f-jobtype').value;
-  const addr=document.getElementById('f-addr').value.trim();
-  const date=document.getElementById('f-date').value;
-  const time=document.getElementById('f-time').value;
-  const callout=parseFloat(document.getElementById('f-callout').value)||0;
-  const labour=parseFloat(document.getElementById('f-labour').value)||0;
-  const parts=parseFloat(document.getElementById('f-parts').value)||0;
-  const total=parseFloat(document.getElementById('f-total').value)||0;
-  const cost=total||(callout+labour+parts)||0;
-  const notes=document.getElementById('f-notes').value.trim();
-  const priority=document.getElementById('f-priority').value;
-  if(!name||!type||!addr||!date||!time){showToast('⚠️ Fill in all required fields');return;}
-  if(!cost){showToast('⚠️ Enter a quoted cost');return;}
-  const newId=Math.max(...jobs.map(j=>j.id))+1;
-  const invNo='PME-2025-'+(52+newId);
-  const suburb=addr.split(',').slice(-3,-1).join(',').trim()||addr;
-  jobs.push({id:newId,client:name,phone:phone||'—',email,type,addr,suburb,time,date,callout,labour,parts,cost,status:'upcoming',priority,notes,invoiceStatus:'draft',invNo});
-  ['f-name','f-phone','f-email','f-addr','f-time','f-callout','f-labour','f-parts','f-total','f-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('f-jobtype').value='';
-  document.getElementById('f-priority').value='normal';
-  document.getElementById('f-date').value=todayStr;
-  pushNotif(`📅 New job: ${name} — ${type}`);
-  showToast('✅ Job scheduled · '+invNo+' created');
-  setView('schedule',document.querySelectorAll('.nbtn')[0]);
-  renderJobs();
-}
-
-// ══════════════════════════════════════════════════════
-// SETTINGS
-// ══════════════════════════════════════════════════════
-function changeTarget(){
-  const val=prompt('New monthly revenue target (R):',revenueTarget);
-  if(val&&!isNaN(val)&&Number(val)>0){
-    revenueTarget=Number(val);
-    document.getElementById('targetLabel').textContent='Currently: '+fmt(revenueTarget);
-    renderDashboard();
-    showToast('🎯 Target updated to '+fmt(revenueTarget));
-  }
-}
-
-// ══════════════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════════════
-function setView(name,btn){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
-  btn.classList.add('active');
-  if(name==='money') setTimeout(renderDashboard,50);
-  if(name==='invoices') renderInvoices();
-  closePanels();
-}
-
-// ══════════════════════════════════════════════════════
-// SWIPE TO DISMISS MODAL
-// ══════════════════════════════════════════════════════
-(function(){
-  let startY=0;
-  const modal=document.getElementById('jobModalInner');
-  modal.addEventListener('touchstart',e=>{startY=e.touches[0].clientY;},{passive:true});
-  modal.addEventListener('touchmove',e=>{const dy=e.touches[0].clientY-startY;if(dy>0)modal.style.transform=`translateY(${dy}px)`;},{passive:true});
-  modal.addEventListener('touchend',e=>{
-    const dy=e.changedTouches[0].clientY-startY;
-    if(dy>100) document.getElementById('jobModal').classList.remove('open');
-    modal.style.transform='';
-  },{passive:true});
-})();
-
-// ══════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════
-initHeader();
-renderJobs();
-renderDashboard();
-renderNotifs();
-document.getElementById('f-date').value=todayStr;
-
-// Hide loading screen after a short delay
-setTimeout(()=>{
-  document.getElementById('loadScreen').classList.add('hidden');
-  setTimeout(()=>document.getElementById('loadScreen').remove(),500);
-},1200);
+// ── SCROLL ANIMATION ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) e.target.style.opacity = '1', e.target.style.transform = 'translateY(0)';
+  });
+}, {threshold: 0.1});
+document.querySelectorAll('.feat-card, .how-step, .price-card, .testimonial').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity .5s ease, transform .5s ease';
+  observer.observe(el);
+});
 </script>
 </body>
 </html>
