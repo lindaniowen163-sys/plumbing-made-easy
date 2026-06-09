@@ -414,7 +414,7 @@ input,select,textarea{font-family:'Inter',sans-serif}
   <div class="hdr-brand">
     <div class="hdr-logo">🔧</div>
     <div class="hdr-titles">
-      <h1>Plumbing <span>Made Easy</span></h1>
+      <h1 id="hdrCompany">Plumbing <span>Made Easy</span></h1>
       <div class="hdr-sub" id="hdrDate">Loading...</div>
     </div>
   </div>
@@ -423,7 +423,7 @@ input,select,textarea{font-family:'Inter',sans-serif}
       <span style="font-size:22px">🔔</span>
       <div class="notif-dot visible" id="notifDot"></div>
     </div>
-    <div class="avatar" onclick="toggleProfilePanel(event)" role="button" aria-label="Profile">DV</div>
+    <div class="avatar" id="hdrAvatar" onclick="toggleProfilePanel(event)" role="button" aria-label="Profile">?</div>
   </div>
 </div>
 
@@ -442,9 +442,9 @@ input,select,textarea{font-family:'Inter',sans-serif}
 <!-- PROFILE PANEL -->
 <div class="profile-panel" id="profilePanel" role="dialog" aria-label="Profile menu">
   <div class="profile-top">
-    <div class="profile-av-lg">DV</div>
-    <div class="profile-name">Danie Visser</div>
-    <div class="profile-role">Master Plumber · Cape Town</div>
+    <div class="profile-av-lg" id="profileAvLg">?</div>
+    <div class="profile-name" id="profileName">Loading...</div>
+    <div class="profile-role" id="profileRole">Plumber</div>
   </div>
   <div class="profile-menu-item" onclick="closePanels();setView('settings',document.querySelectorAll('.nbtn')[4])">
     <div class="profile-menu-icon">⚙️</div>
@@ -458,9 +458,9 @@ input,select,textarea{font-family:'Inter',sans-serif}
     <div class="profile-menu-icon">🆘</div>
     <div><div class="profile-menu-label">Emergency Callout Mode</div><div class="profile-menu-sub">Alert clients of delay</div></div>
   </div>
-  <div class="profile-menu-item" onclick="closePanels();showToast('🔒 Signed out')">
+  <div class="profile-menu-item" id="signOutItem" onclick="closePanels();doSignOut()">
     <div class="profile-menu-icon">🚪</div>
-    <div><div class="profile-menu-label">Sign Out</div><div class="profile-menu-sub">danie@plumbingmadeeasy.co.za</div></div>
+    <div><div class="profile-menu-label">Sign Out</div><div class="profile-menu-sub" id="profileEmail">...</div></div>
   </div>
 </div>
 
@@ -692,11 +692,11 @@ input,select,textarea{font-family:'Inter',sans-serif}
   <div class="view" id="view-settings">
     <div class="sec-hdr"><div class="sec-title">Settings &amp; Profile</div></div>
     <div class="card" style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-      <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#8B4513,var(--copper));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0;border:2px solid rgba(200,117,51,0.3)">DV</div>
+      <div id="settingsAvatar" style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#8B4513,var(--copper));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0;border:2px solid rgba(200,117,51,0.3)">?</div>
       <div>
-        <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:2px">Danie Visser</div>
-        <div style="font-size:11px;color:var(--text3)">Master Plumber · Lic. SA-PLM-2019-0441</div>
-        <div style="font-size:11px;color:var(--text3)">082 555 1234 · danie@plumbingmadeeasy.co.za</div>
+        <div id="settingsName" style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:2px">Loading...</div>
+        <div id="settingsCompany" style="font-size:11px;color:var(--text3)">Plumber</div>
+        <div id="settingsEmail" style="font-size:11px;color:var(--text3)">...</div>
       </div>
     </div>
     <div class="settings-section">
@@ -888,9 +888,9 @@ function initHeader(){
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
   const d=new Date();
-  document.getElementById('hdrDate').textContent=`${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} · Danie Visser`;
-  const monthLabel=`${months[d.getMonth()]} ${d.getFullYear()} — Summary`;
-  document.getElementById('moneyMonthLabel').textContent=monthLabel;
+  document.getElementById('hdrDate').textContent=`${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  const ml=`${months[d.getMonth()]} ${d.getFullYear()} — Summary`;
+  document.getElementById('moneyMonthLabel').textContent=ml;
   document.getElementById('exportMonthLabel').textContent=`Choose format for ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
@@ -1337,6 +1337,15 @@ function setView(name,btn){
 const SUPA_URL = 'https://iqdvtvwlsaboewpgrnmy.supabase.co';
 const SUPA_KEY = 'sb_publishable_UIJ5DAlgPYMLKH1QRReS1Q_Xneg_J1Z';
 
+// ── IMMEDIATE AUTH GUARD — redirects before anything renders ──
+(function(){
+  const token = localStorage.getItem('pme_token');
+  const user = localStorage.getItem('pme_user');
+  if(!token || !user){
+    window.location.replace('index.html');
+  }
+})();
+
 async function supaFetch(path, method='GET', body=null){
   const token = localStorage.getItem('pme_token') || SUPA_KEY;
   const headers = {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'};
@@ -1396,26 +1405,24 @@ async function loadCompanyData(){
       const companyName = currentCompany.name;
       const ownerName = currentCompany.owner_name || session.user.email;
       const ownerInitials = ownerName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const userEmail = session.user.email;
 
       // Header
-      document.querySelector('.hdr-titles h1').innerHTML = companyName;
-      document.querySelector('.hdr-sub').textContent = ownerName + ' · ' + new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-      document.querySelector('.avatar').textContent = ownerInitials;
-
-      // Settings profile card
-      const profileCard = document.querySelector('#view-settings .card');
-      if(profileCard){
-        profileCard.querySelector('div > div:first-child').textContent = ownerName;
-      }
+      document.getElementById('hdrCompany').textContent = companyName;
+      document.getElementById('hdrDate').textContent = document.getElementById('hdrDate').textContent + ' · ' + ownerName;
+      document.getElementById('hdrAvatar').textContent = ownerInitials;
 
       // Profile panel
-      document.querySelector('.profile-name').textContent = ownerName;
-      document.querySelector('.profile-role').textContent = 'Plumber · ' + companyName;
-      document.querySelector('.profile-av-lg').textContent = ownerInitials;
+      document.getElementById('profileAvLg').textContent = ownerInitials;
+      document.getElementById('profileName').textContent = ownerName;
+      document.getElementById('profileRole').textContent = 'Plumber · ' + companyName;
+      document.getElementById('profileEmail').textContent = userEmail;
 
-      // Sign out email
-      const signOutItem = document.querySelector('.profile-menu-item:last-child .profile-menu-sub');
-      if(signOutItem) signOutItem.textContent = session.user.email;
+      // Settings profile card
+      document.getElementById('settingsAvatar').textContent = ownerInitials;
+      document.getElementById('settingsName').textContent = ownerName;
+      document.getElementById('settingsCompany').textContent = companyName;
+      document.getElementById('settingsEmail').textContent = userEmail;
 
       // Trial status check
       const trialEnds = new Date(currentCompany.trial_ends_at);
