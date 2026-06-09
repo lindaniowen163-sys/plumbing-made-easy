@@ -1157,12 +1157,14 @@ function openJobModal(id){
 function startJob(id){
   const j=jobs.find(x=>x.id===id);if(!j)return;
   j.status='inprogress';openJobModal(id);renderJobs();
+  updateJobStatus(id,'inprogress',j.invoiceStatus);
   pushNotif(`▶ Started: ${j.client} — ${j.type}`);
   showToast('▶ '+j.client+' job started!');
 }
 function markComplete(id){
   const j=jobs.find(x=>x.id===id);if(!j)return;
   j.status='completed';j.invoiceStatus='sent';openJobModal(id);renderJobs();renderDashboard();
+  updateJobStatus(id,'completed','sent');
   pushNotif(`✅ Completed: ${j.client} · ${fmt(j.cost)} invoice sent`);
   showToast('✅ '+j.client+' — job complete!');
 }
@@ -1320,6 +1322,7 @@ function submitJob(){
   document.getElementById('f-date').value=todayStr;
   pushNotif(`📅 New job: ${name} — ${type}`);
   showToast('✅ Job scheduled · '+invNo+' created');
+  saveJobToDb(jobs[jobs.length-1]);
   setView('schedule',document.querySelectorAll('.nbtn')[0]);
   renderJobs();
 }
@@ -1366,19 +1369,155 @@ function setView(name,btn){
 })();
 
 // ══════════════════════════════════════════════════════
+// SUPABASE CONFIG
+// ══════════════════════════════════════════════════════
+const SUPA_URL = 'https://iqdvtvwlsaboewpgrnmy.supabase.co';
+const SUPA_KEY = 'sb_publishable_UIJ5DAlgPYMLKH1QRReS1Q_Xneg_J1Z';
+
+async function supaFetch(path, method='GET', body=null){
+  const token = localStorage.getItem('pme_token') || SUPA_KEY;
+  const headers = {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+token,'Prefer':'return=representation'};
+  const opts = {method, headers};
+  if(body) opts.body = JSON.stringify(body);
+  try {
+    const res = await fetch(SUPA_URL+path, opts);
+    const text = await res.text();
+    return text ? JSON.parse(text) : {};
+  } catch(e){ return {}; }
+}
+
+// ── AUTH CHECK ──
+function getSession(){
+  const token = localStorage.getItem('pme_token');
+  const user = localStorage.getItem('pme_user');
+  if(!token || !user) return null;
+  return { token, user: JSON.parse(user) };
+}
+
+function requireAuth(){
+  const session = getSession();
+  if(!session){
+    window.location.href = 'index.html';
+    return null;
+  }
+  return session;
+}
+
+function doSignOut(){
+  localStorage.removeItem('pme_token');
+  localStorage.removeItem('pme_user');
+  localStorage.removeItem('pme_company_id');
+  showToast('🔒 Signed out');
+  setTimeout(()=>{ window.location.href='index.html'; }, 800);
+}
+
+// ── LOAD COMPANY DATA ──
+async function loadCompanyData(){
+  const session = getSession();
+  if(!session) return;
+
+  // Get company record
+  const companies = await supaFetch('/rest/v1/companies?email=eq.'+encodeURIComponent(session.user.email)+'&limit=1');
+  if(companies && companies.length > 0){
+    const company = companies[0];
+    localStorage.setItem('pme_company_id', company.id);
+
+    // Update header with real company name
+    document.querySelector('.hdr-titles h1').innerHTML = company.name+' <span style="color:var(--copper-light)">PME</span>';
+
+    // Check trial status
+    const trialEnds = new Date(company.trial_ends_at);
+    const now = new Date();
+    const daysLeft = Math.ceil((trialEnds - now) / (1000*60*60*24));
+    if(!company.is_subscribed && daysLeft <= 3 && daysLeft > 0){
+      showToast('⚠️ Trial ends in '+daysLeft+' day'+(daysLeft>1?'s':'')+' — subscribe to continue');
+    } else if(!company.is_subscribed && daysLeft <= 0){
+      showToast('🔒 Trial expired — please subscribe to continue');
+    }
+
+    // Load real jobs from database
+    const dbJobs = await supaFetch('/rest/v1/jobs?company_id=eq.'+company.id+'&order=job_date.asc,job_time.asc');
+    if(dbJobs && dbJobs.length > 0){
+      jobs = dbJobs.map(j=>({
+        id: j.id, client: j.client, phone: j.phone||'—', email: j.email||'',
+        type: j.job_type, addr: j.address, suburb: j.suburb||j.address,
+        time: j.job_time||'09:00', date: j.job_date||todayStr,
+        callout: j.callout||0, labour: j.labour||0, parts: j.parts||0, cost: j.cost||0,
+        status: j.status||'upcoming', priority: j.priority||'normal',
+        notes: j.notes||'', invoiceStatus: j.invoice_status||'draft', invNo: j.invoice_no||'PME-001'
+      }));
+      renderJobs();
+    }
+
+    // Load real invoices
+    const dbInvoices = await supaFetch('/rest/v1/invoices?company_id=eq.'+company.id+'&order=created_at.desc');
+    if(dbInvoices && dbInvoices.length > 0){
+      invoices.length = 0;
+      dbInvoices.forEach(inv => invoices.push({
+        id: inv.id, client: inv.client, phone: inv.phone||'—', email: inv.email||'',
+        job: inv.job_description, addr: inv.address, amount: inv.amount,
+        daysOverdue: inv.days_overdue||0, status: inv.status||'draft',
+        invNo: inv.invoice_no, invoiceDate: inv.invoice_date,
+        dueDate: inv.due_date, paidDate: inv.paid_date
+      }));
+    }
+  }
+
+  // Update avatar with user initials
+  const name = session.user.name || session.user.email;
+  const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.querySelector('.avatar').textContent = initials;
+}
+
+// ── SAVE JOB TO SUPABASE ──
+async function saveJobToDb(job){
+  const companyId = localStorage.getItem('pme_company_id');
+  if(!companyId) return;
+  await supaFetch('/rest/v1/jobs','POST',{
+    company_id: companyId,
+    client: job.client, phone: job.phone, email: job.email,
+    job_type: job.type, address: job.addr, suburb: job.suburb,
+    job_date: job.date, job_time: job.time,
+    callout: job.callout, labour: job.labour, parts: job.parts, cost: job.cost,
+    status: job.status, priority: job.priority, notes: job.notes,
+    invoice_status: job.invoiceStatus, invoice_no: job.invNo
+  });
+}
+
+// ── UPDATE JOB STATUS IN SUPABASE ──
+async function updateJobStatus(jobId, status, invoiceStatus){
+  await supaFetch('/rest/v1/jobs?id=eq.'+jobId,'PATCH',{status, invoice_status:invoiceStatus});
+}
+
+// ══════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════
-initHeader();
-renderJobs();
-renderDashboard();
-renderNotifs();
-document.getElementById('f-date').value=todayStr;
 
-// Hide loading screen after a short delay
-setTimeout(()=>{
-  document.getElementById('loadScreen').classList.add('hidden');
-  setTimeout(()=>document.getElementById('loadScreen').remove(),500);
-},1200);
+// Check auth first
+const session = requireAuth();
+if(session){
+  initHeader();
+  renderJobs();
+  renderDashboard();
+  renderNotifs();
+  document.getElementById('f-date').value = todayStr;
+
+  // Wire sign out to real function
+  document.querySelectorAll('.profile-menu-item').forEach(item => {
+    if(item.textContent.includes('Sign Out')){
+      item.onclick = ()=>{ closePanels(); doSignOut(); };
+    }
+  });
+
+  // Load real data from Supabase
+  loadCompanyData();
+
+  // Hide loading screen
+  setTimeout(()=>{
+    document.getElementById('loadScreen').classList.add('hidden');
+    setTimeout(()=>document.getElementById('loadScreen').remove(),500);
+  },1200);
+}
 </script>
 </body>
 </html>
