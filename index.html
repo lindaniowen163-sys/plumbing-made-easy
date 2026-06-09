@@ -605,34 +605,84 @@ document.querySelectorAll('.auth-overlay').forEach(el => {
 });
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAuth(); });
 
-function doLogin(){
+// ── SUPABASE ──
+const SUPA_URL = 'https://iqdvtvwlsaboewpgrnmy.supabase.co';
+const SUPA_KEY = 'sb_publishable_UIJ5DAlgPYMLKH1QRReS1Q_Xneg_J1Z';
+
+async function supaFetch(path, method='GET', body=null, token=null){
+  const headers = {'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+(token||SUPA_KEY)};
+  const opts = {method, headers};
+  if(body) opts.body = JSON.stringify(body);
+  const res = await fetch(SUPA_URL+path, opts);
+  return res.json();
+}
+
+async function doLogin(){
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-password').value;
   if(!email || !pass){ showToast('⚠️ Please enter your email and password'); return; }
   if(!email.includes('@')){ showToast('⚠️ Please enter a valid email'); return; }
-  // Simulate login → redirect to app
-  showToast('✓ Logging you in...');
-  setTimeout(() => {
-    // In production: validate against Supabase here
-    // For now, redirect to the app file
-    window.location.href = 'app.html';
-  }, 1000);
+
+  const btn = document.querySelector('#loginModal .auth-btn');
+  btn.textContent = 'Logging in...'; btn.disabled = true;
+
+  try {
+    const res = await supaFetch('/auth/v1/token?grant_type=password','POST',{email,password:pass});
+    if(res.error){ showToast('⚠️ '+res.error.message); btn.textContent='Log In to My Account'; btn.disabled=false; return; }
+
+    // Save session
+    localStorage.setItem('pme_token', res.access_token);
+    localStorage.setItem('pme_user', JSON.stringify({email, id:res.user.id}));
+
+    showToast('✓ Welcome back! Loading your dashboard...');
+    setTimeout(()=>{ window.location.href='app.html'; }, 900);
+  } catch(e){
+    showToast('⚠️ Connection error. Please try again.');
+    btn.textContent='Log In to My Account'; btn.disabled=false;
+  }
 }
 
-function doRegister(){
+async function doRegister(){
   const first = document.getElementById('reg-firstname').value.trim();
   const last = document.getElementById('reg-lastname').value.trim();
   const biz = document.getElementById('reg-business').value.trim();
   const email = document.getElementById('reg-email').value.trim();
   const pass = document.getElementById('reg-password').value;
-  if(!first || !last || !biz || !email || !pass){ showToast('⚠️ Please fill in all fields'); return; }
+  if(!first||!last||!biz||!email||!pass){ showToast('⚠️ Please fill in all fields'); return; }
   if(!email.includes('@')){ showToast('⚠️ Please enter a valid email'); return; }
   if(pass.length < 8){ showToast('⚠️ Password must be at least 8 characters'); return; }
-  showToast('🎉 Account created! Starting your trial...');
-  setTimeout(() => {
-    // In production: create account in Supabase here
-    window.location.href = 'app.html';
-  }, 1200);
+
+  const btn = document.querySelector('#registerModal .auth-btn');
+  btn.textContent = 'Creating account...'; btn.disabled = true;
+
+  try {
+    // 1. Create auth user
+    const res = await supaFetch('/auth/v1/signup','POST',{
+      email, password:pass,
+      data:{ first_name:first, last_name:last, company_name:biz }
+    });
+    if(res.error){ showToast('⚠️ '+res.error.message); btn.textContent='Create Free Account →'; btn.disabled=false; return; }
+
+    const token = res.access_token;
+    const userId = res.user?.id;
+
+    // 2. Create company record
+    await supaFetch('/rest/v1/companies','POST',{
+      name: biz,
+      owner_name: first+' '+last,
+      email: email
+    }, token);
+
+    // 3. Save session
+    localStorage.setItem('pme_token', token);
+    localStorage.setItem('pme_user', JSON.stringify({email, id:userId, company:biz, name:first+' '+last}));
+
+    showToast('🎉 Account created! Starting your 14-day trial...');
+    setTimeout(()=>{ window.location.href='app.html'; }, 1000);
+  } catch(e){
+    showToast('⚠️ Connection error. Please try again.');
+    btn.textContent='Create Free Account →'; btn.disabled=false;
+  }
 }
 
 // ── FAQ ──
